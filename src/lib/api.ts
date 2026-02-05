@@ -103,3 +103,20 @@ export async function getMissionsForProduct(productId: string): Promise<QuestMis
   if (!res.ok) throw new Error("Failed to fetch missions");
   return res.json();
 }
+
+export interface MissionAttemptResult {
+  correct: boolean;
+}
+
+export async function attemptMission(
+  missionId: string,
+  option_index: number
+): Promise<MissionAttemptResult> {
+  const res = await fetch(`${API_BASE}/missions/${missionId}/attempts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ option_index }),
+  });
+  if (!res.ok) throw new Error("Failed to submit attempt");
+  return res.json();
+}

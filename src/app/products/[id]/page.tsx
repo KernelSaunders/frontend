@@ -19,7 +19,6 @@ export default async function ProductPage({ params }: PageProps) {
 
   try {
     productData = await getProductTraceability(id);
-    missions = await getMissionsForProduct(id);
   } catch (e) {
     error = "Product not found or failed to load.";
   }
@@ -34,6 +33,12 @@ export default async function ProductPage({ params }: PageProps) {
   }
 
   const { product, stages, input_shares, claims } = productData;
+
+  try {
+    missions = await getMissionsForProduct(id);
+  } catch (e) {
+    missionsError = "Failed to load missions.";
+  }
 
   return (
     <main className="max-w-4xl mx-auto p-4">
@@ -71,15 +76,16 @@ export default async function ProductPage({ params }: PageProps) {
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Missions</h2>
-        {missions.length === 0 ? (
-          <p>No missions available.</p>
+        {missionsError ? (
+          <p className="text-sm text-red-600">{missionsError}</p>
+        ) : missions.length === 0 ? (
+          <p className="text-sm text-gray-600">No missions available.</p>
         ) : (
-
           <div className="space-y-4">
-              {missions.map((m) => (
-              <MissionCard key={m.mission_id} mission={m} error={missionsError} />
+            {missions.map((m) => (
+              <MissionCard key={m.mission_id} mission={m} />
             ))}
-            </div>
+          </div>
         )}
       </section>
     </main>
