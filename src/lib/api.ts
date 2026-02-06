@@ -87,3 +87,36 @@ export async function getProductTraceability(productId: string): Promise<Product
   return res.json();
 }
 
+export interface QuestMission {
+  mission_id: string;
+  product_id: string;
+  tier: "basic" | "intermediate" | "advanced";
+  question: string;
+  type: "multiple_choice";
+  options: string[];
+  explanation_link: string | null;
+  created_at: string;
+}
+
+export async function getMissionsForProduct(productId: string): Promise<QuestMission[]> {
+  const res = await fetch(`${API_BASE}/products/${productId}/missions`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch missions");
+  return res.json();
+}
+
+export interface MissionAttemptResult {
+  correct: boolean;
+}
+
+export async function attemptMission(
+  missionId: string,
+  option_index: number
+): Promise<MissionAttemptResult> {
+  const res = await fetch(`${API_BASE}/missions/${missionId}/attempts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ option_index }),
+  });
+  if (!res.ok) throw new Error("Failed to submit attempt");
+  return res.json();
+}

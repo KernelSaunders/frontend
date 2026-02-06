@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { getProductTraceability } from "@/lib/api";
+import { getMissionsForProduct, getProductTraceability, type QuestMission } from "@/lib/api";
 import { Timeline } from "@/components/Timeline";
 import { OriginBreakdown } from "@/components/OriginBreakdown";
 import { ClaimCard } from "@/components/ClaimCard";
+import { MissionCard } from "@/components/MissionCard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -11,16 +12,18 @@ interface PageProps {
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params;
   
-  let data = null;
+  let productData = null;
   let error = null;
+  let missions: QuestMission[] = [];
+  let missionsError: string | null = null;
 
   try {
-    data = await getProductTraceability(id);
+    productData = await getProductTraceability(id);
   } catch (e) {
     error = "Product not found or failed to load.";
   }
 
-  if (error || !data) {
+  if (error || !productData) {
     return (
       <main className="max-w-4xl mx-auto p-4">
         <Link href="/" className="underline">Back to home</Link>
@@ -29,7 +32,13 @@ export default async function ProductPage({ params }: PageProps) {
     );
   }
 
-  const { product, stages, input_shares, claims } = data;
+  const { product, stages, input_shares, claims } = productData;
+
+  try {
+    missions = await getMissionsForProduct(id);
+  } catch (e) {
+    missionsError = "Failed to load missions.";
+  }
 
   return (
     <main className="max-w-4xl mx-auto p-4">
@@ -64,7 +73,21 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
         )}
       </section>
+
+      <section className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Missions</h2>
+        {missionsError ? (
+          <p className="text-sm text-red-600">{missionsError}</p>
+        ) : missions.length === 0 ? (
+          <p className="text-sm text-gray-600">No missions available.</p>
+        ) : (
+          <div className="space-y-4">
+            {missions.map((m) => (
+              <MissionCard key={m.mission_id} mission={m} />
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
-
