@@ -1,6 +1,7 @@
 import { getProducts, Product } from "@/lib/api";
 import { ProductCard } from "@/components/ProductCard";
 import { SearchForm } from "@/components/SearchForm";
+import { AuthStatus } from "@/components/AuthStatus";
 
 export default async function Home() {
   let products: Product[] = [];
@@ -14,7 +15,11 @@ export default async function Home() {
 
   return (
     <main className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Product Traceability</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Product Traceability</h1>
+        <AuthStatus />
+      </div>
+
       <p className="mb-6">
         Enter a product ID or select a product below to view its traceability story.
       </p>
