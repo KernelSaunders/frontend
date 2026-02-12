@@ -1,3 +1,5 @@
+import { supabase } from "./supabaseClient";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface Product {
@@ -69,6 +71,37 @@ export interface ProductTraceability {
   claims: ClaimWithEvidence[];
 }
 
+// Authenticate user sessions
+async function authHeaders(): Promise<HeadersInit> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Authorisation"] = `Bearer ${token}`
+  }
+  return headers
+}
+/*
+Either returns
+{ "Content-Type": "application/json", "Authorization": "Bearer ..." } => Logged in
+{ "Content-Type": "application/json" } => Not logged in
+*/
+
+// authenticated fetch wrapper
+// Use for making authenticated API calls
+// Note: ... = spread operator (copies all properties from what is after it)
+async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  const headers = await authHeaders();
+  
+  return fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: { ...headers, ...options.headers },
+    cache: "no-store" 
+  })
+}
+
+
+
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch products");
@@ -120,3 +153,4 @@ export async function attemptMission(
   if (!res.ok) throw new Error("Failed to submit attempt");
   return res.json();
 }
+
