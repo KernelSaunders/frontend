@@ -80,10 +80,12 @@ export interface UserRoleResponse {
 async function authHeaders(): Promise<HeadersInit> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token
+  console.log("Token:", token ? "EXISTS" : "MISSING"); //Debug
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (token) {
-    headers["Authorisation"] = `Bearer ${token}`
+    headers["Authorization"] = `Bearer ${token}`
   }
+  console.log("Headers:", headers); //Debug
   return headers
 }
 /*
