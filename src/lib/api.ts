@@ -43,6 +43,9 @@ export interface Claim {
   claim_text: string;
   confidence_label: "verified" | "partially_verified" | "unverified";
   rationale: string | null;
+  verified_by: string | null
+  verified_at: string | null 
+  verification_notes: string | null 
   created_at: string;
   updated_at: string;
 }
