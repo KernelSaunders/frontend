@@ -71,6 +71,11 @@ export interface ProductTraceability {
   claims: ClaimWithEvidence[];
 }
 
+export interface UserRoleResponse {
+  user_id: string;
+  role: "consumer" | "verifier" //Will add more later
+}
+
 // Authenticate user sessions
 async function authHeaders(): Promise<HeadersInit> {
   const { data } = await supabase.auth.getSession();
@@ -100,7 +105,13 @@ async function apiFetch(path: string, options: RequestInit = {}): Promise<Respon
   })
 }
 
+// Use function to get userRole
+export async function getMyRole(): Promise<UserRoleResponse> {
+  const res = await apiFetch("/users/me/role");
+  if (!res.ok) throw new Error("Failed to fetch role");
+  return res.json()
 
+}
 
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
