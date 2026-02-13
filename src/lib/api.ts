@@ -157,6 +157,66 @@ export async function verifyClaim(
   }
 }
 
+// Simillar function but to unverify
+export async function unverifyClaim(
+  product_id: string,
+  claim_id: string,
+  notes?: string
+): Promise<void> {
+  const res = await apiFetch(
+    `/products/${product_id}/claims/${claim_id}/unverify`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ notes }),
+    }
+  );
+  if (!res.ok) {
+    if (res.status === 403) throw new Error("Verifier role required");
+    if (res.status === 401) throw new Error("Not authenticated");
+    throw new Error("Failed to unverify claim");
+  }
+}
+
+// Function to change claim confidence
+export async function updateClaimConfidence(
+  product_id: string,
+  claim_id: string,
+  confidence_label: string,
+  notes?: string
+): Promise<void> {
+  const res = await apiFetch(
+    `/products/${product_id}/claims/${claim_id}/confidence`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ confidence_label: confidence_label, notes }),
+    }
+  );
+  if (!res.ok) {
+    if (res.status === 403) throw new Error("Verifier role required");
+    if (res.status === 401) throw new Error("Not authenticated");
+    throw new Error("Failed to update claim confidence");
+  }
+}
+
+// Gets verification history for a claim
+export async function getVerificationHistory(
+  productId: string,
+  claimId: string
+): Promise<ChangeLogEntry[]> {
+  const res = await apiFetch(
+    `/products/${productId}/claims/${claimId}/history`
+  );
+  if (!res.ok) throw new Error("Failed to fetch verification history");
+  return res.json();
+}
+
+// Fetch all claims that are not yet verified
+export async function getPendingClaims(): Promise<Claim[]> {
+  const res = await apiFetch("/claims/pending");
+  if (!res.ok) throw new Error("Failed to fetch pending claims");
+  return res.json();
+}
+
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch products");
