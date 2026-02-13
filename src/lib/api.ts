@@ -43,11 +43,28 @@ export interface Claim {
   claim_text: string;
   confidence_label: "verified" | "partially_verified" | "unverified";
   rationale: string | null;
-  verified_by: string | null
-  verified_at: string | null 
-  verification_notes: string | null 
+  verified_by?: string | null
+  verified_at?: string | null 
+  verification_notes?: string | null 
   created_at: string;
   updated_at: string;
+}
+
+export interface ChangeLogEntry {
+  log_id: string;
+  entity_type: string;
+  entity_id: string;
+  changed_by?: string;
+  timestamp: string;
+  change_summary?: {
+    action: string;
+    old_confidence?: string;
+    new_confidence?: string;
+    verification_notes?: string;
+    old_verified_status?: boolean;
+    new_verified_status?: boolean;
+  };
+  created_at: string;
 }
 
 export interface Evidence {
