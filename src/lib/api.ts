@@ -212,7 +212,7 @@ export async function getVerificationHistory(
 
 // Fetch all claims that are not yet verified
 export async function getPendingClaims(): Promise<Claim[]> {
-  const res = await apiFetch("/claims/pending");
+  const res = await apiFetch("/products/claims/pending");
   if (!res.ok) throw new Error("Failed to fetch pending claims");
   return res.json();
 }

@@ -30,6 +30,9 @@ export default function AuthCallbackPage() {
           setError(exchangeError.message);
           return;
         }
+        // Logging function
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("[Auth] JWT:", session?.access_token);
         router.replace("/");
         return;
       }
@@ -43,6 +46,7 @@ export default function AuthCallbackPage() {
           setError(setErrorResult.message);
           return;
         }
+        console.log("[Auth] JWT:", accessToken);
         router.replace("/");
         return;
       }
