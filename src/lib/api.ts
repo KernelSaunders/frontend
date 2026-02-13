@@ -135,6 +135,28 @@ export async function getMyRole(): Promise<UserRoleResponse> {
 
 }
 
+// Function to verify a claim
+export async function verifyClaim(
+  product_id: string,
+  claim_id: string,
+  notes?: string
+): Promise<void> {
+  // Tries to verify the claim - will only work if authenticated
+  const res = await apiFetch(
+    `/products/${product_id}/claims/${claim_id}/verify`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ notes }),
+    }
+  );
+  // Error handling
+  if (!res.ok) {
+    if (res.status === 403) throw new Error("Verifier role required");
+    if (res.status === 401) throw new Error("Not authenticated");
+    throw new Error("Failed to verify claim");
+  }
+}
+
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch products");
