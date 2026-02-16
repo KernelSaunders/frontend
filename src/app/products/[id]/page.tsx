@@ -68,7 +68,7 @@ export default async function ProductPage({ params }: PageProps) {
         ) : (
           <div className="space-y-4">
             {claims.map((claimData) => (
-              <ClaimCard key={claimData.claim.claim_id} claimData={claimData} />
+              <ClaimCard key={claimData.claim.claim_id} claimData={claimData} productId={id} />
             ))}
           </div>
         )}
