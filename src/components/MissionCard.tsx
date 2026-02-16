@@ -35,8 +35,8 @@ export function MissionCard({ mission }: MissionCardProps) {
 
           const base = "w-full text-left border rounded-md px-3 py-2 text-sm";
           const idleCls = "bg-black hover:bg-gray-800";
-          const correctCls = "border-green-600 bg-green-100 text-green-900";
-          const wrongCls = "border-red-600 bg-red-100 text-red-900";
+          const correctCls = "border-green-800 bg-green-100 text-green-900";
+          const wrongCls = "border-red-800 bg-red-100 text-red-900";
           const lockedCls = "opacity-80 cursor-not-allowed";
 
           const className = [
@@ -72,7 +72,7 @@ export function MissionCard({ mission }: MissionCardProps) {
           </p>
         )}
         {state.status === "error" && <p className="text-sm text-red-700">{state.message}</p>}
-        {state.status === "submitting" && <p className="text-sm text-gray-600">Checking...</p>}
+        {state.status === "submitting" && <p className="text-sm text-gray-400">Checking...</p>}
       </div>
 
 

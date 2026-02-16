@@ -2,14 +2,24 @@
 
 import { useState } from "react";
 import { ClaimWithEvidence } from "@/lib/api";
+import { useUserRole } from "@/hooks/useUserRole";
+import { VerifierControls } from "@/components/VerifierControls";
 
 interface ClaimCardProps {
   claimData: ClaimWithEvidence;
+  productId: string;
 }
 
-export function ClaimCard({ claimData }: ClaimCardProps) {
+export function ClaimCard({ claimData, productId }: ClaimCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { claim, evidence } = claimData;
+  const [confidenceLabel, setConfidenceLabel] = useState(claim.confidence_label);
+  const role = useUserRole();
+  const isVerifier = role === "verifier";
+
+  function handleVerificationUpdate(isVerified: boolean) {
+    setConfidenceLabel(isVerified ? "verified" : "unverified");
+  }
 
   return (
     <div className="border rounded p-4">
@@ -19,11 +29,11 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
           <p className="font-medium">{claim.claim_text}</p>
         </div>
         <span className="text-sm border px-2 py-1 rounded whitespace-nowrap">
-          {claim.confidence_label.replace("_", " ")}
+          {confidenceLabel.replace("_", " ")}
         </span>
       </div>
       {claim.rationale && (
-        <p className="text-sm text-gray-600 mt-2">{claim.rationale}</p>
+        <p className="text-sm text-gray-400 mt-2">{claim.rationale}</p>
       )}
 
       {evidence.length > 0 && (
@@ -43,7 +53,7 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
                     {ev.evidence_date && <span className="text-gray-500">{ev.evidence_date}</span>}
                   </div>
                   <p>Issuer: {ev.issuer}</p>
-                  {ev.summary && <p className="text-gray-600">{ev.summary}</p>}
+                  {ev.summary && <p className="text-gray-400">{ev.summary}</p>}
                   {ev.file_reference && (
                     <a
                       href={ev.file_reference}
@@ -59,6 +69,14 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
             </div>
           )}
         </div>
+      )}
+
+      {isVerifier && (
+        <VerifierControls
+          productId={productId}
+          claim={claim}
+          onUpdate={handleVerificationUpdate}
+        />
       )}
     </div>
   );
