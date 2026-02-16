@@ -2,14 +2,24 @@
 
 import { useState } from "react";
 import { ClaimWithEvidence } from "@/lib/api";
+import { useUserRole } from "@/hooks/useUserRole";
+import { VerifierControls } from "@/components/VerifierControls";
 
 interface ClaimCardProps {
   claimData: ClaimWithEvidence;
+  productId: string;
 }
 
-export function ClaimCard({ claimData }: ClaimCardProps) {
+export function ClaimCard({ claimData, productId }: ClaimCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { claim, evidence } = claimData;
+  const [confidenceLabel, setConfidenceLabel] = useState(claim.confidence_label);
+  const role = useUserRole();
+  const isVerifier = role === "verifier";
+
+  function handleVerificationUpdate(isVerified: boolean) {
+    setConfidenceLabel(isVerified ? "verified" : "unverified");
+  }
 
   return (
     <div className="border rounded p-4">
@@ -19,7 +29,7 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
           <p className="font-medium">{claim.claim_text}</p>
         </div>
         <span className="text-sm border px-2 py-1 rounded whitespace-nowrap">
-          {claim.confidence_label.replace("_", " ")}
+          {confidenceLabel.replace("_", " ")}
         </span>
       </div>
       {claim.rationale && (
@@ -59,6 +69,14 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
             </div>
           )}
         </div>
+      )}
+
+      {isVerifier && (
+        <VerifierControls
+          productId={productId}
+          claim={claim}
+          onUpdate={handleVerificationUpdate}
+        />
       )}
     </div>
   );
