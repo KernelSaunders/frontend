@@ -57,9 +57,9 @@ export default function AuthCallbackPage() {
     <main className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-3">Signing you in...</h1>
       {error ? (
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-800">{error}</p>
       ) : (
-        <p className="text-gray-600">Completing authentication.</p>
+        <p className="text-gray-400">Completing authentication.</p>
       )}
     </main>
   );

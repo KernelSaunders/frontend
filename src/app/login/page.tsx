@@ -27,7 +27,7 @@ export default function LoginPage() {
   return (
     <main className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-3">Sign in</h1>
-      <p className="text-gray-600 mb-6">Use your Google account to continue.</p>
+      <p className="text-gray-400 mb-6">Use your Google account to continue.</p>
       <button
         type="button"
         onClick={handleLogin}
@@ -36,7 +36,7 @@ export default function LoginPage() {
       >
         {loading ? "Redirecting..." : "Sign in with Google"}
       </button>
-      {error && <p className="text-red-600 mt-4">{error}</p>}
+      {error && <p className="text-red-800 mt-4">{error}</p>}
     </main>
   );
 }

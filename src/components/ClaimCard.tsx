@@ -23,7 +23,7 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
         </span>
       </div>
       {claim.rationale && (
-        <p className="text-sm text-gray-600 mt-2">{claim.rationale}</p>
+        <p className="text-sm text-gray-400 mt-2">{claim.rationale}</p>
       )}
 
       {evidence.length > 0 && (
@@ -43,7 +43,7 @@ export function ClaimCard({ claimData }: ClaimCardProps) {
                     {ev.evidence_date && <span className="text-gray-500">{ev.evidence_date}</span>}
                   </div>
                   <p>Issuer: {ev.issuer}</p>
-                  {ev.summary && <p className="text-gray-600">{ev.summary}</p>}
+                  {ev.summary && <p className="text-gray-400">{ev.summary}</p>}
                   {ev.file_reference && (
                     <a
                       href={ev.file_reference}

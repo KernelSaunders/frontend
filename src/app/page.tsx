@@ -28,7 +28,7 @@ export default async function Home() {
 
       <h2 className="text-xl font-semibold mt-8 mb-4">Products</h2>
       {error ? (
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-800">{error}</p>
       ) : products.length === 0 ? (
         <p>No products found.</p>
       ) : (
