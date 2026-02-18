@@ -4,6 +4,8 @@ import { ProductCard } from "@/components/ProductCard";
 import { SearchForm } from "@/components/SearchForm";
 import { AuthStatus } from "@/components/AuthStatus";
 
+export const dynamic = "force-dynamic";
+
 async function ProductList() {
   const products = await getProducts();
 
