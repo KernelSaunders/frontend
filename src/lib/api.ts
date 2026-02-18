@@ -2,19 +2,6 @@ import { supabase } from "./supabaseClient";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3): Promise<Response> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, options);
-      if (res.ok) return res;
-    } catch {
-      if (i === retries - 1) throw new Error(`Failed to fetch ${url}`);
-    }
-    await new Promise((r) => setTimeout(r, 300));
-  }
-  throw new Error(`Failed to fetch ${url}`);
-}
-
 export interface Product {
   product_id: string;
   name: string;
