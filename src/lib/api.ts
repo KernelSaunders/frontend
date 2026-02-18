@@ -2,6 +2,19 @@ import { supabase } from "./supabaseClient";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+    } catch {
+      if (i === retries - 1) throw new Error(`Failed to fetch ${url}`);
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw new Error(`Failed to fetch ${url}`);
+}
+
 export interface Product {
   product_id: string;
   name: string;
@@ -216,8 +229,7 @@ export async function getPendingClaims(): Promise<Claim[]> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch products");
+  const res = await fetchWithRetry(`${API_BASE}/products`, { cache: "no-store" });
   return res.json();
 }
 
