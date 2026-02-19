@@ -216,14 +216,17 @@ export async function getPendingClaims(): Promise<Claim[]> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  for (let i = 0; i < 3; i++) {
+  const maxRetries = 5;
+  const baseDelay = 500;
+  
+  for (let i = 0; i < maxRetries; i++) {
     try {
       const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
       if (res.ok) return res.json();
     } catch {
-      if (i === 2) throw new Error("Failed to fetch products");
+      if (i === maxRetries - 1) throw new Error("Failed to fetch products");
     }
-    await new Promise((r) => setTimeout(r, 300));
+    await new Promise((r) => setTimeout(r, baseDelay * Math.pow(2, i)));
   }
   throw new Error("Failed to fetch products");
 }
