@@ -31,6 +31,7 @@ export function NavBar() {
         return () => { subscription.subscription.unsubscribe(); };
     }, []);
 
+
     return (
         <nav className = "navbar">
             <div className = "navleft">
