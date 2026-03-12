@@ -264,6 +264,7 @@ export async function getClaimEvidence(productId: string, claimId: string): Prom
   return res.json();
 }
 
+
 export async function getProductEvidence(productId: string): Promise<ProductEvidenceView> {
   const res = await fetch(`${API_BASE}/products/${productId}/evidence`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch evidence");
