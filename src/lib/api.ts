@@ -232,7 +232,7 @@ export async function createEvidence(
   data: {
     type: string;
     issuer: string;
-    evidence_date?: string;
+    date?: string;
     summary?: string;
     file_reference?: string;
     stage_id?: string;

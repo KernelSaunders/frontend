@@ -195,7 +195,7 @@ export default function EditProductPage({ params }: PageProps) {
       await createEvidence(token, productId, claimId, {
         type: fd.get("type") as string,
         issuer: fd.get("issuer") as string,
-        evidence_date: (fd.get("evidence_date") as string) || undefined,
+        date: (fd.get("evidence_date") as string) || undefined,
         summary: (fd.get("summary") as string) || undefined,
         file_reference: (fd.get("file_reference") as string) || undefined,
       });
