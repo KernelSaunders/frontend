@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getMissionsForProduct, getProductTraceability, type QuestMission } from "@/lib/api";
 import { Timeline } from "@/components/Timeline";
 import { OriginBreakdown } from "@/components/OriginBreakdown";
-import { ClaimCard } from "@/components/ClaimCard";
+import { ClaimsSection } from "@/components/ClaimsSection";
 import { MissionCard } from "@/components/MissionCard";
 
 interface PageProps {
@@ -63,15 +63,7 @@ export default async function ProductPage({ params }: PageProps) {
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Claims</h2>
-        {claims.length === 0 ? (
-          <p>No claims available.</p>
-        ) : (
-          <div className="space-y-4">
-            {claims.map((claimData) => (
-              <ClaimCard key={claimData.claim.claim_id} claimData={claimData} />
-            ))}
-          </div>
-        )}
+        <ClaimsSection claims={claims} productId={id} />
       </section>
 
       <section className="mt-8">

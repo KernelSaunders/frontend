@@ -62,6 +62,19 @@ export interface ClaimWithEvidence {
   evidence: Evidence[];
 }
 
+export interface ClaimEvidenceGroup {
+  claim_id: string;
+  claim_type: string;
+  claim_text: string;
+  confidence_label: "verified" | "partially_verified" | "unverified";
+  evidence: Evidence[];
+}
+
+export interface ProductEvidenceView {
+  product_id: string;
+  groups: ClaimEvidenceGroup[];
+}
+
 export interface ProductTraceability {
   product: Product;
   stages: Stage[];
@@ -96,6 +109,12 @@ export interface QuestMission {
   options: string[];
   explanation_link: string | null;
   created_at: string;
+}
+
+export async function getProductEvidence(productId: string): Promise<ProductEvidenceView> {
+  const res = await fetch(`${API_BASE}/products/${productId}/evidence`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch evidence");
+  return res.json();
 }
 
 export async function getMissionsForProduct(productId: string): Promise<QuestMission[]> {
