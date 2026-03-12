@@ -6,7 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { getUserRole, getIssues, updateIssue, type IssueReport } from "@/lib/api";
 
-const STATUS_OPTIONS = ["open", "in_review", "resolved", "dismissed"] as const;
+const STATUS_OPTIONS = ["open", "under_review", "resolved", "rejected"] as const;
 
 export default function IssuesPage() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function IssuesPage() {
 
     // If resolving/dismissing, prompt for a note
     let resolution_note: string | undefined;
-    if (newStatus === "resolved" || newStatus === "dismissed") {
+    if (newStatus === "resolved" || newStatus === "rejected") {
       resolution_note = window.prompt(`Add a note for ${newStatus}:`) ?? undefined;
     }
 
