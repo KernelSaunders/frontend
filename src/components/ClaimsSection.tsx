@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ClaimWithEvidence, ClaimEvidenceGroup, getProductEvidence } from "@/lib/api";
+import { Claim, ClaimEvidenceGroup, getProductEvidence } from "@/lib/api";
 import { ClaimCard } from "@/components/ClaimCard";
 import { EvidenceView } from "@/components/EvidenceView";
 
 interface ClaimsSectionProps {
-  claims: ClaimWithEvidence[];
+  claims: Claim[];
   productId: string;
 }
 
@@ -49,8 +49,8 @@ export function ClaimsSection({ claims, productId }: ClaimsSectionProps) {
           <p>No claims available.</p>
         ) : (
           <div className="space-y-4">
-            {claims.map((claimData) => (
-              <ClaimCard key={claimData.claim.claim_id} claimData={claimData} />
+            {claims.map((claim) => (
+              <ClaimCard key={claim.claim_id} claim={claim} productId={productId} />
             ))}
           </div>
         )
