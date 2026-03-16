@@ -20,7 +20,7 @@ export default function Report() {
                 <form onSubmit={handleReport} className="form">
                     <div className="formrow">
                         <label htmlFor="issueType">Type of issue: </label>
-                        <select id="issueType" className="reportinput">
+                        <select id="issueType" className="reportinput rounded">
                             <option>None</option>
                             <option>Wrong claim</option>
                             <option>Bugs</option>
@@ -29,7 +29,7 @@ export default function Report() {
                     </div>
                     <div className="formrow">
                         <label htmlFor="issueDetail">Details: </label>
-                        <textarea id="issueDetail" placeholder="Specify issue" className="reportinput"></textarea>
+                        <textarea id="issueDetail" placeholder="Specify issue" className="reportinput rounded"></textarea>
                     </div>
                     <div className="buttonrow">
                         <button type="submit" className="submitbutton">Submit</button>

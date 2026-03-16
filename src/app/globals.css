@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1F1E28;
-  --foreground: #FFFFFF;
+  --background: #F3F5F4;
+  --foreground: #000000;
 }
 
 @theme inline {
@@ -12,12 +12,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/*@media (prefers-color-scheme: dark) {
   :root {
     --background: #1F1E28;
     --foreground: #FFFFFF;
   }
-}
+}*/
 
 body {
   background: var(--background);
@@ -26,7 +26,7 @@ body {
 }
 
 .navbar {
-  background: #4A4680;
+  background: #30C071;
   width: 100%;
   height: 100px;
   display: flex;
@@ -59,7 +59,7 @@ body {
 }
 
 .navbar a:hover{
-  background: #3D396B;
+  background: #2EA664;
 }
 
 .reportpage {
@@ -101,13 +101,13 @@ body {
 }
 
 .reportinput {
-  border: 1px solid white;
+  border: 1px solid black;
   width: 100%;
 }
 
 select.reportinput:focus {
-  background-color: #1F1E28;
-  border: 1px solid white;
+  background-color: white;
+  border: 1px solid black;
 }
 
 textarea.reportinput {
@@ -122,12 +122,12 @@ textarea.reportinput {
 }
 
 .submitbutton {
-  background-color: #767DCC;
+  background-color: #30C071;
   padding: 3px 15px;
   border-radius: 7%;
 }
 
 .submitbutton:hover {
-  background: #676EBB;
+  background: #2EA664;
   cursor: pointer;
 }

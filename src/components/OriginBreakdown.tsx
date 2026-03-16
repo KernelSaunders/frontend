@@ -13,24 +13,30 @@ export function OriginBreakdown({ inputs }: OriginBreakdownProps) {
     (a, b) => (b.percentage || 0) - (a.percentage || 0)
   );
 
+  const total = sortedInputs.reduce((sum, input) => sum + (input.percentage || 0), 0);
+
+  const Colours = ["#D45B5B" ,"#A4E457", "#60E0E0", "#DD21B4", "#DDA121"]
+
   return (
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="border-b">
-          <th className="text-left py-2">Input</th>
-          <th className="text-left py-2">Country</th>
-          <th className="text-right py-2">Percentage</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedInputs.map((input) => (
-          <tr key={input.input_id} className="border-b">
-            <td className="py-2">{input.input_name}</td>
-            <td className="py-2">{input.country}</td>
-            <td className="py-2 text-right">{input.percentage}%</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+    <div className="flex flex-col gap-3">
+      {sortedInputs.map((input, index) => (
+        <div
+          key={input.input_id}
+          className="flex items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="h-4 w-4 rounded-sm"
+              style={{ backgroundColor: Colours[index % Colours.length] }}
+            />
+            <span className="text-sm text-[#1F2A24]">
+              {input.country} — {input.input_name}
+            </span>
+          </div>
+          <span className="text-sm font-medium text-[#5F6C65]">
+            {input.percentage}%
+          </span>
+        </div>
+      ))}
+    </div>);
 }

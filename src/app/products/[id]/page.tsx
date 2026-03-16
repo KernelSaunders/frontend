@@ -52,8 +52,11 @@ export default async function ProductPage({ params }: PageProps) {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Traceability Timeline</h2>
+        <div className="rounded-lg border border-[#E3E8E5] bg-white p-7 shadow-[0_8px_24px_rgba(20,30,24,0.08)]">
+          <h2 className="text-xl font-semibold mb-4">Traceability Timeline</h2>
         <Timeline stages={stages} />
+        </div>
+        
       </section>
 
       <section className="mt-8">

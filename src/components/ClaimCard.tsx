@@ -35,6 +35,7 @@ export function ClaimCard({ claim, productId }: ClaimCardProps) {
     }
   }
 
+  const confidenceLabel = claim.confidence_label ?? "unknown";
   const confidenceClass = confidenceStyles[claim.confidence_label] ?? "bg-gray-100 text-gray-700 border-gray-300";
 
   return (
@@ -45,7 +46,7 @@ export function ClaimCard({ claim, productId }: ClaimCardProps) {
           <p className="font-medium">{claim.claim_text}</p>
         </div>
         <span className={`text-xs font-semibold border px-2 py-1 rounded whitespace-nowrap ${confidenceClass}`}>
-          {claim.confidence_label.replace("_", " ")}
+          {confidenceLabel.replace("_", " ")}
         </span>
       </div>
 
