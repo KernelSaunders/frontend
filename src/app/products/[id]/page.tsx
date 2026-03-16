@@ -4,6 +4,7 @@ import { Timeline } from "@/components/Timeline";
 import { OriginBreakdown } from "@/components/OriginBreakdown";
 import { ClaimsSection } from "@/components/ClaimsSection";
 import { MissionCard } from "@/components/MissionCard";
+import { CompareButton } from "@/components/CompareButton";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -45,9 +46,14 @@ export default async function ProductPage({ params }: PageProps) {
       <Link href="/" className="underline">Back to home</Link>
 
       <section className="mt-6">
-        <h1 className="text-2xl font-bold">{product.name}</h1>
-        {product.brand && <p className="text-gray-600">{product.brand}</p>}
-        <p className="text-sm text-gray-500">Category: {product.category}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">{product.name}</h1>
+            {product.brand && <p className="text-gray-600">{product.brand}</p>}
+            <p className="text-sm text-gray-500">Category: {product.category}</p>
+          </div>
+          <CompareButton productId={id} />
+        </div>
         {product.description && <p className="mt-2">{product.description}</p>}
       </section>
 
