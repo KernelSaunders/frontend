@@ -9,7 +9,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.product_id}`}
-      className="block p-4 rounded bg-[#767DCC] hover:bg-[#676EBB]"
+      className="block p-4 rounded-lg bg-white border border-[#F3F5F4] shadow-[0_8px_24px_rgba(20,30,24,0.08)] transition hover:-translate-y-[2px] hover:shadow-[0_12px_28px_rgba(20,30,24,0.12)]"
     >
       <h3 className="font-semibold text-center">{product.name}</h3>
       {product.brand && <p className="text-sm text-center">{product.brand}</p>}
