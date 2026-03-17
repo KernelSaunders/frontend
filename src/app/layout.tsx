@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Titillium_Web, Martel_Sans, Overpass } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const titillium = Titillium_Web({
+  variable: "--font-titillium",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const martel = Martel_Sans({
+  variable: "--font-martel",
   subsets: ["latin"],
+  weight: ["400", "600"],
+});
+
+const overpass = Overpass({
+  variable: "--font-overpass",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -29,6 +37,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
         <NavBar />
+      <body className={`${titillium.variable} ${martel.variable} ${overpass.variable}`}>
         {children}
       </body>
     </html>

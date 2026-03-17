@@ -6,6 +6,8 @@ import { ClaimsSection } from "@/components/ClaimsSection";
 import { MissionCard } from "@/components/MissionCard";
 import { CompareButton } from "@/components/CompareButton";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -54,6 +56,9 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
           <CompareButton productId={id} />
         </div>
+        <h1 className="text-2xl font-bold">{product.name}</h1>
+        {product.brand && <p className="text-gray-400">{product.brand}</p>}
+        <p className="text-sm text-gray-500">Category: {product.category}</p>
         {product.description && <p className="mt-2">{product.description}</p>}
       </section>
 
@@ -78,9 +83,9 @@ export default async function ProductPage({ params }: PageProps) {
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Missions</h2>
         {missionsError ? (
-          <p className="text-sm text-red-600">{missionsError}</p>
+          <p className="text-sm text-red-800">{missionsError}</p>
         ) : missions.length === 0 ? (
-          <p className="text-sm text-gray-600">No missions available.</p>
+          <p className="text-sm text-gray-400">No missions available.</p>
         ) : (
           <div className="space-y-4">
             {missions.map((m) => (

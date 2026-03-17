@@ -14,7 +14,7 @@ async function ProductList() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2">
       {products.map((product) => (
         <ProductCard key={product.product_id} product={product} />
       ))}

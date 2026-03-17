@@ -22,7 +22,7 @@ export function Timeline({ stages }: TimelineProps) {
             </p>
           )}
           {stage.description && (
-            <p className="text-sm text-gray-600">{stage.description}</p>
+            <p className="text-sm text-gray-400">{stage.description}</p>
           )}
           {(stage.start_date || stage.end_date) && (
             <p className="text-xs text-gray-500">

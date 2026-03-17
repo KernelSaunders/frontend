@@ -37,6 +37,25 @@ export function ClaimCard({ claim, productId }: ClaimCardProps) {
 
   const confidenceLabel = claim.confidence_label ?? "unknown";
   const confidenceClass = confidenceStyles[claim.confidence_label] ?? "bg-gray-100 text-gray-700 border-gray-300";
+import { ClaimWithEvidence } from "@/lib/api";
+import { useUserRole } from "@/hooks/useUserRole";
+import { VerifierControls } from "@/components/VerifierControls";
+
+interface ClaimCardProps {
+  claimData: ClaimWithEvidence;
+  productId: string;
+}
+
+export function ClaimCard({ claimData, productId }: ClaimCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const { claim, evidence } = claimData;
+  const [confidenceLabel, setConfidenceLabel] = useState(claim.confidence_label);
+  const role = useUserRole();
+  const isVerifier = role === "verifier";
+
+  function handleVerificationUpdate(isVerified: boolean) {
+    setConfidenceLabel(isVerified ? "verified" : "unverified");
+  }
 
   return (
     <div className="border rounded p-4">
@@ -77,9 +96,8 @@ export function ClaimCard({ claim, productId }: ClaimCardProps) {
                       <span className="text-xs text-gray-500">{ev.evidence_date}</span>
                     )}
                   </div>
-                  {ev.summary && (
-                    <p className="text-sm text-gray-600 mt-1">{ev.summary}</p>
-                  )}
+                  <p>Issuer: {ev.issuer}</p>
+                  {ev.summary && <p className="text-gray-400">{ev.summary}</p>}
                   {ev.file_reference && (
                     <a
                       href={ev.file_reference}
