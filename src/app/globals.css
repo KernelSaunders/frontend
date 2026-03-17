@@ -96,4 +96,39 @@ body {
 .reportinput {
   border: 1px solid white;
   width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: transparent;
+  color: white;
+  font-size: 16px;
+}
+
+.reportinput:focus {
+  outline: none;
+  border-color: #7c78c9;
+}
+
+textarea.reportinput {
+  resize: vertical;
+}
+
+.reportsubmit {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #4A4680;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reportsubmit:hover:not(:disabled) {
+  background: #3D396B;
+}
+
+.reportsubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

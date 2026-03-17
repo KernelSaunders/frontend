@@ -4,9 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { getUserRole, getIssues, updateIssue, type IssueReport } from "@/lib/api";
+import {
+  getUserRole,
+  getIssues,
+  updateIssue,
+  type IssueReport,
+} from "@/lib/api";
 
-const STATUS_OPTIONS = ["open", "under_review", "resolved", "rejected"] as const;
+const STATUS_OPTIONS = [
+  "open",
+  "under_review",
+  "resolved",
+  "rejected",
+] as const;
 
 export default function IssuesPage() {
   const router = useRouter();
@@ -15,7 +25,16 @@ export default function IssuesPage() {
   const [issues, setIssues] = useState<IssueReport[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("open");
   const [updating, setUpdating] = useState<string | null>(null);
-  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
+  // Tracks which issue is awaiting a resolution note, and what status was chosen
+  const [notePrompt, setNotePrompt] = useState<{
+    issueId: string;
+    status: string;
+  } | null>(null);
+  const [noteText, setNoteText] = useState("");
 
   async function loadIssues(t: string, status?: string) {
     try {
@@ -30,10 +49,16 @@ export default function IssuesPage() {
     async function init() {
       const { data } = await supabase.auth.getSession();
       const t = data.session?.access_token;
-      if (!t) { router.replace("/login"); return; }
+      if (!t) {
+        router.replace("/login");
+        return;
+      }
       try {
         const { role } = await getUserRole(t);
-        if (role !== "verifier") { router.replace("/"); return; }
+        if (role !== "verifier") {
+          router.replace("/");
+          return;
+        }
       } catch {
         router.replace("/");
         return;
@@ -52,39 +77,67 @@ export default function IssuesPage() {
 
   async function handleStatusChange(issue: IssueReport, newStatus: string) {
     if (!token) return;
-    setUpdating(issue.issue_id);
 
-    // If resolving/dismissing, prompt for a note
-    let resolution_note: string | undefined;
+    // For resolved/rejected, show the inline note input instead of acting immediately
     if (newStatus === "resolved" || newStatus === "rejected") {
-      resolution_note = window.prompt(`Add a note for ${newStatus}:`) ?? undefined;
+      setNotePrompt({ issueId: issue.issue_id, status: newStatus });
+      setNoteText("");
+      return;
     }
 
+    // For other statuses (open, under_review) just update directly
+    await submitStatusUpdate(issue.issue_id, newStatus);
+  }
+
+  async function submitStatusUpdate(
+    issueId: string,
+    newStatus: string,
+    resolution_note?: string,
+  ) {
+    if (!token) return;
+    setUpdating(issueId);
     try {
-      await updateIssue(token, issue.issue_id, { status: newStatus, resolution_note });
+      await updateIssue(token, issueId, { status: newStatus, resolution_note });
       await loadIssues(token, statusFilter);
-      setMessage({ text: `Issue ${newStatus}`, type: "success" });
+      setMessage({
+        text: `Issue ${newStatus.replace("_", " ")}`,
+        type: "success",
+      });
       setTimeout(() => setMessage(null), 3000);
     } catch (err) {
-      setMessage({ text: err instanceof Error ? err.message : "Failed to update", type: "error" });
+      setMessage({
+        text: err instanceof Error ? err.message : "Failed to update",
+        type: "error",
+      });
     }
     setUpdating(null);
+    setNotePrompt(null);
+    setNoteText("");
   }
 
   if (loading) {
-    return <main className="max-w-3xl mx-auto p-6"><p>Loading...</p></main>;
+    return (
+      <main className="max-w-3xl mx-auto p-6">
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   return (
     <main className="max-w-3xl mx-auto p-6">
-      <Link href="/dashboard" className="text-sm text-[#676EBB] hover:underline">
+      <Link
+        href="/dashboard"
+        className="text-sm text-[#676EBB] hover:underline"
+      >
         &larr; Back to Dashboard
       </Link>
 
       <h1 className="text-2xl font-bold mt-4 mb-6">Issue Reports</h1>
 
       {message && (
-        <p className={`mb-4 text-sm ${message.type === "success" ? "text-green-400" : "text-red-400"}`}>
+        <p
+          className={`mb-4 text-sm ${message.type === "success" ? "text-green-400" : "text-red-400"}`}
+        >
           {message.text}
         </p>
       )}
@@ -107,21 +160,32 @@ export default function IssuesPage() {
       </div>
 
       {issues.length === 0 ? (
-        <p className="text-gray-400">No {statusFilter.replace("_", " ")} issues.</p>
+        <p className="text-gray-400">
+          No {statusFilter.replace("_", " ")} issues.
+        </p>
       ) : (
         <div className="space-y-3">
           {issues.map((issue) => (
-            <div key={issue.issue_id} className="border border-gray-700 rounded p-4">
+            <div
+              key={issue.issue_id}
+              className="border border-gray-700 rounded p-4"
+            >
               <div className="flex justify-between items-start gap-4">
                 <div>
-                  <p className="text-xs text-gray-500 uppercase">{issue.type.replace("_", " ")}</p>
+                  <p className="text-xs text-gray-500 uppercase">
+                    {issue.type.replace("_", " ")}
+                  </p>
                   <p className="font-medium">{issue.description}</p>
-                  <p className="text-xs text-gray-500 mt-1">Product: {issue.product_id}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Product: {issue.product_id}
+                  </p>
                   <p className="text-xs text-gray-500">
                     Reported: {new Date(issue.created_at).toLocaleDateString()}
                   </p>
                   {issue.resolution_note && (
-                    <p className="text-sm text-gray-400 mt-2 italic">Note: {issue.resolution_note}</p>
+                    <p className="text-sm text-gray-400 mt-2 italic">
+                      Note: {issue.resolution_note}
+                    </p>
                   )}
                 </div>
                 <span className="text-xs border px-2 py-1 rounded whitespace-nowrap">
@@ -142,6 +206,47 @@ export default function IssuesPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Inline note input, appears when resolving or rejecting this issue */}
+              {notePrompt?.issueId === issue.issue_id && (
+                <div className="mt-3 border border-gray-600 rounded p-3">
+                  <p className="text-sm text-gray-300 mb-2">
+                    Add a note for &ldquo;{notePrompt.status.replace("_", " ")}
+                    &rdquo;:
+                  </p>
+                  <textarea
+                    className="w-full bg-transparent border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-[#676EBB]"
+                    rows={2}
+                    placeholder="Optional note..."
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() =>
+                        submitStatusUpdate(
+                          issue.issue_id,
+                          notePrompt.status,
+                          noteText || undefined,
+                        )
+                      }
+                      disabled={updating === issue.issue_id}
+                      className="bg-[#4A4680] hover:bg-[#3D396B] text-sm px-4 py-1 rounded transition-colors disabled:opacity-50"
+                    >
+                      {updating === issue.issue_id ? "Updating..." : "Confirm"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNotePrompt(null);
+                        setNoteText("");
+                      }}
+                      className="text-sm text-gray-400 hover:text-white px-3 py-1"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
