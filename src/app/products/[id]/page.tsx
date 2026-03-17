@@ -5,6 +5,8 @@ import { OriginBreakdown } from "@/components/OriginBreakdown";
 import { ClaimCard } from "@/components/ClaimCard";
 import { MissionCard } from "@/components/MissionCard";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
