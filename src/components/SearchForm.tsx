@@ -35,13 +35,13 @@ export function SearchForm() {
           type="button"
           onClick={() => setScannerOpen(true)}
           aria-label="Scan QR code"
-          className="rounded px-3 py-2 bg-[#767DCC] hover:bg-[#676EBB] text-white text-lg leading-none"
+          className="rounded px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
         >
-          📷
+          Scanner
         </button>
         <button
           type="submit"
-          className="rounded px-4 py-2 bg-[#767DCC] hover:bg-[#676EBB] text-white"
+          className="rounded px-4 py-2 bg-red-500 hover:bg-red-600 text-white"
         >
           Search
         </button>

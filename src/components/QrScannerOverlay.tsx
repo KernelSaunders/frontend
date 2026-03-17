@@ -11,15 +11,25 @@ export function QrScannerOverlay({ onScan, onClose }: Props) {
   useEffect(() => {
     let scanner: import("html5-qrcode").Html5Qrcode | null = null;
 
+    let stopped = false;
+
     async function startScanner() {
       const { Html5Qrcode } = await import("html5-qrcode");
+
+      if (stopped) return;
+
+      const el = document.getElementById("qr-reader");
+      if (el) el.innerHTML = "";
+
       scanner = new Html5Qrcode("qr-reader");
 
       await scanner.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
-          scanner?.stop().then(() => onScan(decodedText.trim()));
+          const s = scanner;
+          scanner = null;
+          s?.stop().then(() => onScan(decodedText.trim()));
         },
         () => {}
       );
@@ -28,6 +38,7 @@ export function QrScannerOverlay({ onScan, onClose }: Props) {
     startScanner().catch(console.error);
 
     return () => {
+      stopped = true;
       scanner?.stop().catch(() => {});
     };
   }, [onScan]);
