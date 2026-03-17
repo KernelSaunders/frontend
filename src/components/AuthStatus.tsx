@@ -44,7 +44,7 @@ export function AuthStatus() {
         </>
       ) : (
         <Link href="/login" className="border rounded px-3 py-1 hover:bg-gray-100">
-          Sign in with Google
+          Sign in
         </Link>
       )}
     </div>
