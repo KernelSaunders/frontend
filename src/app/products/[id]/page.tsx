@@ -6,6 +6,8 @@ import { ClaimsSection } from "@/components/ClaimsSection";
 import { MissionCard } from "@/components/MissionCard";
 import { CompareButton } from "@/components/CompareButton";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
