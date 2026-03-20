@@ -2,7 +2,7 @@
 
 :root {
   --background: #F3F5F4;
-  --foreground: #000000;
+  --foreground: #171717;
 }
 
 @theme inline {
@@ -13,54 +13,10 @@
   --font-body: var(--font-overpass);
 }
 
-/*@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1F1E28;
-    --foreground: #FFFFFF;
-  }
-}*/
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-overpass), Arial, Helvetica, sans-serif;
-}
-
-.navbar {
-  background: #30C071;
-  width: 100%;
-  height: 100px;
-  display: flex;
-  align-items: stretch;
-}
-
-.navleft {
-  display: flex;
-  height: 100%;
-}
-
-.navright {
-  display: flex;
-  height: 100%;
-  margin-left: auto;
-}
-
-.navbar a {
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: white;
-  text-decoration: none;
-  border: 1px solid transparent;
-  width: 160px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  height: 100%;
-}
-
-.navbar a:hover{
-  background: #2EA664;
 }
 
 .reportpage {

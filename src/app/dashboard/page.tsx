@@ -13,6 +13,7 @@ import {
   type Claim,
   type IssueReport,
 } from "@/lib/api";
+import { Button } from "@/components/Button";
 
 type Tab = "products" | "claims" | "issues";
 
@@ -87,8 +88,8 @@ export default function DashboardPage() {
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 text-sm font-medium rounded-t transition-colors ${
               tab === t.key
-                ? "bg-[#4A4680] text-white"
-                : "text-gray-400 hover:text-white hover:bg-[#2A2935]"
+                ? "bg-emerald-600 text-white"
+                : "text-gray-400 hover:text-white hover:bg-emerald-600/20"
             }`}
           >
             {t.label}
@@ -102,11 +103,8 @@ export default function DashboardPage() {
         <section>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">All Products</h2>
-            <Link
-              href="/dashboard/products/new"
-              className="bg-[#676EBB] hover:bg-[#4A4680] text-white px-4 py-2 rounded text-sm transition-colors"
-            >
-              + Create New
+            <Link href="/dashboard/products/new">
+              <Button>+ Create New</Button>
             </Link>
           </div>
           {products.length === 0 ? (
@@ -126,7 +124,7 @@ export default function DashboardPage() {
                   </div>
                   <Link
                     href={`/dashboard/products/${p.product_id}/edit`}
-                    className="text-sm text-[#676EBB] hover:underline"
+                    className="text-sm text-emerald-600 hover:underline"
                   >
                     Edit
                   </Link>
@@ -165,7 +163,7 @@ export default function DashboardPage() {
                   <div className="mt-2">
                     <Link
                       href={`/dashboard/claims`}
-                      className="text-sm text-[#676EBB] hover:underline"
+                      className="text-sm text-emerald-600 hover:underline"
                     >
                       Review
                     </Link>
@@ -205,7 +203,7 @@ export default function DashboardPage() {
                   <div className="mt-2">
                     <Link
                       href="/dashboard/issues"
-                      className="text-sm text-[#676EBB] hover:underline"
+                      className="text-sm text-emerald-600 hover:underline"
                     >
                       Manage
                     </Link>

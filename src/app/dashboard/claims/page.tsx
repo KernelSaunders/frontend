@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { getUserRole, getPendingClaims, verifyClaim, type Claim } from "@/lib/api";
+import { Button } from "@/components/Button";
 
 export default function ClaimsReviewPage() {
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function ClaimsReviewPage() {
 
   return (
     <main className="max-w-3xl mx-auto p-6">
-      <Link href="/dashboard" className="text-sm text-[#676EBB] hover:underline">
+      <Link href="/dashboard" className="text-sm text-emerald-600 hover:underline">
         &larr; Back to Dashboard
       </Link>
 
@@ -107,7 +108,7 @@ export default function ClaimsReviewPage() {
                 {c.product_id && (
                   <Link
                     href={`/dashboard/products/${c.product_id}/edit`}
-                    className="text-sm text-[#676EBB] hover:underline flex items-center"
+                    className="text-sm text-emerald-600 hover:underline flex items-center"
                   >
                     View Product
                   </Link>
