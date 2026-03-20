@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@/components/Button";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -27,16 +28,11 @@ export default function LoginPage() {
   return (
     <main className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-3">Sign in</h1>
-      <p className="text-gray-400 mb-6">Use your Google account to continue.</p>
-      <button
-        type="button"
-        onClick={handleLogin}
-        className="border rounded px-4 py-2 hover:bg-gray-100"
-        disabled={loading}
-      >
+      <p className="text-gray-500 mb-6">Use your Google account to continue.</p>
+      <Button onClick={handleLogin} disabled={loading}>
         {loading ? "Redirecting..." : "Sign in with Google"}
-      </button>
-      {error && <p className="text-red-800 mt-4">{error}</p>}
+      </Button>
+      {error && <p className="text-red-600 mt-4">{error}</p>}
     </main>
   );
 }
