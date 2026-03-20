@@ -98,6 +98,7 @@ body {
   font-size: 19px;
   width: 120px;
   flex-shrink: 0;
+  color: #1F2A24;
 }
 
 .reportinput {
@@ -106,7 +107,7 @@ body {
   padding: 8px 10px;
   border-radius: 6px;
   background: transparent;
-  color: white;
+  color: #1F2A24;
   font-size: 16px;
 }
 
