@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { QrScannerOverlay } from "@/components/QrScannerOverlay";
+import { Button } from "./Button";
 
 export function SearchForm() {
   const [productId, setProductId] = useState("");
@@ -23,25 +24,19 @@ export function SearchForm() {
 
   return (
     <>
-      <div className="bg-white border border-[#E3E8E5] rounded-xl shadow-[0_8px_24px_rgba(20,30,24,0.06)] p-5">
+      <div className="bg-white border border-emerald-50 rounded-xl shadow-sm p-5">
         <form onSubmit={handleSubmit} className="flex gap-4">
           <input
             type="text"
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
             placeholder="Enter product ID"
-            className="flex-1 h-12 rounded-2xl border border-[#D8E2DC] px-4 text-[16px] text-[#1F2A24] placeholder:text-[#7A857F] outline-none focus:border-[#35BF73] focus:ring-4 focus:ring-[#35BF73]/15"
+            className="flex-1 h-12 rounded-2xl border border-gray-200 px-4 text-base text-emerald-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15"
           />
-          <button type="submit" className="h-12 rounded-xl bg-[#35BF73] px-6 font-semibold text-white transition hover:bg-[#2EA664]">
-            Search
-          </button>
-          <button
-            type="button"
-            onClick={() => setScannerOpen(true)}
-            className="h-12 rounded-xl border border-[#BEE9CD] bg-[#EAF8F0] px-6 font-semibold text-[#2EA664] transition hover:bg-[#DDF6E8]"
-          >
+          <Button type="submit">Search</Button>
+          <Button type="button" variant="secondary" onClick={() => setScannerOpen(true)}>
             Scan Code
-          </button>
+          </Button>
         </form>
       </div>
 

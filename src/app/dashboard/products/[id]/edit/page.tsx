@@ -16,6 +16,7 @@ import {
   type Stage,
   type ClaimWithEvidence,
 } from "@/lib/api";
+import { Button } from "@/components/Button";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -217,7 +218,7 @@ export default function EditProductPage({ params }: PageProps) {
 
   return (
     <main className="max-w-3xl mx-auto p-6">
-      <Link href="/dashboard" className="text-sm text-[#676EBB] hover:underline">
+      <Link href="/dashboard" className="text-sm text-emerald-600 hover:underline">
         &larr; Back to Dashboard
       </Link>
 
@@ -256,18 +257,18 @@ export default function EditProductPage({ params }: PageProps) {
           <label className="block text-sm mb-1">Image URL</label>
           <input type="text" value={image} onChange={(e) => setImage(e.target.value)} className={inputClass} />
         </div>
-        <button type="submit" disabled={saving} className="bg-[#676EBB] hover:bg-[#4A4680] disabled:opacity-50 text-white px-6 py-2 rounded transition-colors">
+        <Button type="submit" disabled={saving}>
           {saving ? "Saving..." : "Save Changes"}
-        </button>
+        </Button>
       </form>
 
       {/* Stages section */}
       <section className="mb-10">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Stages</h2>
-          <button
+            <button
             onClick={() => setShowAddStage(!showAddStage)}
-            className="text-sm text-[#676EBB] hover:underline"
+            className="text-sm text-emerald-600 hover:underline"
           >
             {showAddStage ? "Cancel" : "+ Add Stage"}
           </button>
@@ -305,9 +306,9 @@ export default function EditProductPage({ params }: PageProps) {
               <label className="block text-xs mb-1">Description</label>
               <textarea name="description" rows={2} className={inputClass} />
             </div>
-            <button type="submit" disabled={saving} className="bg-[#676EBB] hover:bg-[#4A4680] disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors">
+            <Button type="submit" disabled={saving} className="h-10 text-sm">
               {saving ? "Adding..." : "Add Stage"}
-            </button>
+            </Button>
           </form>
         )}
 
@@ -350,12 +351,8 @@ export default function EditProductPage({ params }: PageProps) {
                       <textarea name="description" rows={2} defaultValue={s.description ?? ""} className={inputClass} />
                     </div>
                     <div className="flex gap-2">
-                      <button type="submit" disabled={saving} className="bg-[#676EBB] hover:bg-[#4A4680] disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors">
-                        Save
-                      </button>
-                      <button type="button" onClick={() => setEditingStage(null)} className="text-sm text-gray-400 hover:text-white">
-                        Cancel
-                      </button>
+                      <Button type="submit" disabled={saving} className="h-10 text-sm">Save</Button>
+                      <button type="button" onClick={() => setEditingStage(null)} className="text-sm text-gray-400 hover:text-gray-200">Cancel</button>
                     </div>
                   </form>
                 ) : (
@@ -368,7 +365,7 @@ export default function EditProductPage({ params }: PageProps) {
                       </p>
                       {s.description && <p className="text-sm text-gray-500 mt-1">{s.description}</p>}
                     </div>
-                    <button onClick={() => setEditingStage(s.stage_id)} className="text-sm text-[#676EBB] hover:underline">
+                    <button onClick={() => setEditingStage(s.stage_id)} className="text-sm text-emerald-600 hover:underline">
                       Edit
                     </button>
                   </div>
@@ -385,7 +382,7 @@ export default function EditProductPage({ params }: PageProps) {
           <h2 className="text-xl font-semibold">Claims</h2>
           <button
             onClick={() => setShowAddClaim(!showAddClaim)}
-            className="text-sm text-[#676EBB] hover:underline"
+            className="text-sm text-emerald-600 hover:underline"
           >
             {showAddClaim ? "Cancel" : "+ Add Claim"}
           </button>
@@ -406,9 +403,9 @@ export default function EditProductPage({ params }: PageProps) {
               <label className="block text-xs mb-1">Rationale *</label>
               <textarea name="rationale" required rows={2} placeholder="Why is this claim being made?" className={inputClass} />
             </div>
-            <button type="submit" disabled={saving} className="bg-[#676EBB] hover:bg-[#4A4680] disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors">
+            <Button type="submit" disabled={saving} className="h-10 text-sm">
               {saving ? "Adding..." : "Add Claim"}
-            </button>
+            </Button>
           </form>
         )}
 
@@ -442,7 +439,7 @@ export default function EditProductPage({ params }: PageProps) {
                         <p className="text-gray-400">Issuer: {ev.issuer}</p>
                         {ev.summary && <p className="text-gray-500">{ev.summary}</p>}
                         {ev.file_reference && (
-                          <a href={ev.file_reference} target="_blank" rel="noopener noreferrer" className="text-[#676EBB] underline text-xs">
+                          <a href={ev.file_reference} target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline text-xs">
                             View document
                           </a>
                         )}
@@ -477,9 +474,9 @@ export default function EditProductPage({ params }: PageProps) {
                       <textarea name="summary" rows={2} className={inputClass} />
                     </div>
                     <div className="flex gap-2">
-                      <button type="submit" disabled={saving} className="bg-[#676EBB] hover:bg-[#4A4680] disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm transition-colors">
+                      <Button type="submit" disabled={saving} className="h-10 text-sm">
                         Add Evidence
-                      </button>
+                      </Button>
                       <button type="button" onClick={() => setAddEvidenceForClaim(null)} className="text-sm text-gray-400 hover:text-white">
                         Cancel
                       </button>
@@ -488,7 +485,7 @@ export default function EditProductPage({ params }: PageProps) {
                 ) : (
                   <button
                     onClick={() => setAddEvidenceForClaim(claim.claim_id)}
-                    className="mt-3 text-sm text-[#676EBB] hover:underline"
+                    className="mt-3 text-sm text-emerald-600 hover:underline"
                   >
                     + Add Evidence
                   </button>
