@@ -6,7 +6,13 @@ import { attemptMission, type QuestMission } from "@/lib/api";
 type AttemptState =
   | { status: "idle" }
   | { status: "submitting"; selectedIndex: number }
-  | { status: "checked"; selectedIndex: number; correct: boolean }
+  | {
+      status: "checked";
+      selectedIndex: number;
+      correct: boolean;
+      pointsAwarded: number;
+      attempts: number | null;
+    }
   | { status: "error"; message: string };
 
 interface MissionCardProps {
@@ -34,7 +40,7 @@ export function MissionCard({ mission }: MissionCardProps) {
           const selectedWrong = state.status === "checked" && !state.correct && isSelected;
 
           const base = "w-full text-left border rounded-md px-3 py-2 text-sm";
-          const idleCls = "bg-black hover:bg-gray-800";
+          const idleCls = "bg-white hover:bg-emerald-50 text-gray-800 border-gray-700";
           const correctCls = "border-green-800 bg-green-100 text-green-900";
           const wrongCls = "border-red-800 bg-red-100 text-red-900";
           const lockedCls = "opacity-80 cursor-not-allowed";
@@ -55,9 +61,16 @@ export function MissionCard({ mission }: MissionCardProps) {
                 setState({ status: "submitting", selectedIndex: idx });
                 try {
                   const result = await attemptMission(mission.mission_id, idx);
-                  setState({ status: "checked", selectedIndex: idx, correct: result.correct });
+                  setState({
+                    status: "checked",
+                    selectedIndex: idx,
+                    correct: result.correct,
+                    pointsAwarded: result.points_awarded,
+                    attempts: result.attempts,
+                  });
                 } catch (e) {
-                  setState({ status: "error", message: "Failed to submit attempt." });
+                  const message = e instanceof Error ? e.message : "Failed to submit attempt.";
+                  setState({ status: "error", message });
                 }
               }}
             >
@@ -67,12 +80,21 @@ export function MissionCard({ mission }: MissionCardProps) {
         })}
 
         {state.status === "checked" && (
-          <p className={`text-sm ${state.correct ? "text-green-700" : "text-red-700"}`}>
-            {state.correct ? "Correct" : "Incorrect"}
-          </p>
+          <div className={`text-sm ${state.correct ? "text-green-700" : "text-red-700"}`}>
+            <p>{state.correct ? "Correct" : "Incorrect"}</p>
+            {state.correct && state.pointsAwarded > 0 && (
+              <p className="text-gray-800">You earned {state.pointsAwarded} points.</p>
+            )}
+            {state.correct && state.pointsAwarded === 0 && (
+              <p className="text-gray-800">Already completed - no new points earned.</p>
+            )}
+            {state.attempts !== null && (
+              <p className="text-gray-800">Attempts: {state.attempts}</p>
+            )}
+          </div>
         )}
         {state.status === "error" && <p className="text-sm text-red-700">{state.message}</p>}
-        {state.status === "submitting" && <p className="text-sm text-gray-400">Checking...</p>}
+        {state.status === "submitting" && <p className="text-sm text-gray-500">Checking...</p>}
       </div>
 
 
