@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { getUserRole, createProduct } from "@/lib/api";
+import { Button } from "@/components/Button";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function NewProductPage() {
 
   return (
     <main className="max-w-2xl mx-auto p-6">
-      <Link href="/dashboard" className="text-sm text-[#676EBB] hover:underline">
+      <Link href="/dashboard" className="text-sm text-emerald-600 hover:underline">
         &larr; Back to Dashboard
       </Link>
 
@@ -89,7 +90,7 @@ export default function NewProductPage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full border border-gray-600 rounded px-3 py-2 bg-[#1F1E28]"
+            className="w-full border border-gray-600 rounded px-3 py-2"
           >
             <option value="food">Food</option>
             <option value="luxury">Luxury</option>
@@ -128,13 +129,9 @@ export default function NewProductPage() {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={saving || !name.trim()}
-          className="bg-[#676EBB] hover:bg-[#4A4680] disabled:opacity-50 text-white px-6 py-2 rounded transition-colors"
-        >
+        <Button type="submit" disabled={saving || !name.trim()}>
           {saving ? "Creating..." : "Create Product"}
-        </button>
+        </Button>
       </form>
     </main>
   );

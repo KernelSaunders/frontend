@@ -10,6 +10,7 @@ import {
   updateIssue,
   type IssueReport,
 } from "@/lib/api";
+import { Button } from "@/components/Button";
 
 const STATUS_OPTIONS = [
   "open",
@@ -127,7 +128,7 @@ export default function IssuesPage() {
     <main className="max-w-3xl mx-auto p-6">
       <Link
         href="/dashboard"
-        className="text-sm text-[#676EBB] hover:underline"
+        className="text-sm text-emerald-600 hover:underline"
       >
         &larr; Back to Dashboard
       </Link>
@@ -150,8 +151,8 @@ export default function IssuesPage() {
             onClick={() => handleFilterChange(s)}
             className={`px-4 py-2 text-sm rounded-t transition-colors ${
               statusFilter === s
-                ? "bg-[#4A4680] text-white"
-                : "text-gray-400 hover:text-white hover:bg-[#2A2935]"
+                ? "bg-emerald-600 text-white"
+                : "text-gray-400 hover:text-white hover:bg-emerald-600/20"
             }`}
           >
             {s.replace("_", " ")}
@@ -200,7 +201,7 @@ export default function IssuesPage() {
                     key={s}
                     onClick={() => handleStatusChange(issue, s)}
                     disabled={updating === issue.issue_id}
-                    className="border border-gray-600 hover:border-[#676EBB] text-sm px-3 py-1 rounded transition-colors disabled:opacity-50"
+                    className="border border-gray-600 hover:border-emerald-600 text-sm px-3 py-1 rounded transition-colors disabled:opacity-50"
                   >
                     {s.replace("_", " ")}
                   </button>
@@ -215,7 +216,7 @@ export default function IssuesPage() {
                     &rdquo;:
                   </p>
                   <textarea
-                    className="w-full bg-transparent border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-[#676EBB]"
+                    className="w-full bg-transparent border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-600"
                     rows={2}
                     placeholder="Optional note..."
                     value={noteText}
@@ -231,7 +232,7 @@ export default function IssuesPage() {
                         )
                       }
                       disabled={updating === issue.issue_id}
-                      className="bg-[#4A4680] hover:bg-[#3D396B] text-sm px-4 py-1 rounded transition-colors disabled:opacity-50"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-sm px-4 py-1 rounded transition-colors disabled:opacity-50"
                     >
                       {updating === issue.issue_id ? "Updating..." : "Confirm"}
                     </button>

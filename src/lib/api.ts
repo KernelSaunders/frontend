@@ -230,9 +230,19 @@ export async function getPendingClaims(): Promise<Claim[]> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch products");
-  return res.json();
+  const maxRetries = 5;
+  const baseDelay = 500;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const res = await fetch(`${API_BASE}/products`, { cache: "no-store" });
+      if (res.ok) return res.json();
+    } catch {
+      if (i === maxRetries - 1) throw new Error("Failed to fetch products");
+    }
+    await new Promise((r) => setTimeout(r, baseDelay * Math.pow(2, i)));
+  }
+  throw new Error("Failed to fetch products");
 }
 
 export async function getProduct(productId: string): Promise<Product> {
@@ -264,6 +274,7 @@ export async function getClaimEvidence(productId: string, claimId: string): Prom
   return res.json();
 }
 
+
 export async function getProductEvidence(productId: string): Promise<ProductEvidenceView> {
   const res = await fetch(`${API_BASE}/products/${productId}/evidence`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch evidence");
@@ -278,18 +289,62 @@ export async function getMissionsForProduct(productId: string): Promise<QuestMis
 
 export interface MissionAttemptResult {
   correct: boolean;
+  points_awarded: number;
+  completed: boolean;
+  attempts: number | null;
+}
+
+export interface UserMissionProgress {
+  mission_id: string;
+  tier: "basic" | "intermediate" | "advanced";
+  completed: boolean;
+  score: number;
+  attempts: number | null;
+  completed_at: string | null;
+}
+
+export interface RecentMissionCompletion {
+  mission_id: string;
+  question: string;
+  tier: "basic" | "intermediate" | "advanced";
+  score: number;
+  completed_at: string;
+}
+
+export interface UserProgressSummary {
+  user_id: string;
+  total_completed: number;
+  total_points: number;
+  missions_completed_by_tier: {
+    basic: number;
+    intermediate: number;
+    advanced: number;
+  };
+  missions: UserMissionProgress[];
+  recent_completions: RecentMissionCompletion[];
 }
 
 export async function attemptMission(
   missionId: string,
   option_index: number
 ): Promise<MissionAttemptResult> {
-  const res = await fetch(`${API_BASE}/missions/${missionId}/attempts`, {
+  const res = await apiFetch(`/missions/${missionId}/attempts`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ option_index }),
   });
-  if (!res.ok) throw new Error("Failed to submit attempt");
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Sign in to save mission progress");
+    throw new Error("Failed to submit attempt");
+  }
+  return res.json();
+}
+
+export async function getMyProgress(): Promise<UserProgressSummary> {
+  const res = await apiFetch("/users/me/progress");
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Sign in to view progress");
+    throw new Error("Failed to fetch progress");
+  }
   return res.json();
 }
 

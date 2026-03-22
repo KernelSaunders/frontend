@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AuthStatus } from "./AuthStatus";
+import { Button } from "./Button";
 import { supabase } from "@/lib/supabaseClient";
 import { getUserRole } from "@/lib/api";
 
@@ -31,15 +32,18 @@ export function NavBar() {
         return () => { subscription.subscription.unsubscribe(); };
     }, []);
 
+
     return (
-        <nav className = "navbar">
-            <div className = "navleft">
-                <Link href = "/">Home</Link>
-                <Link href = "/missions">Missions</Link>
-                {isVerifier && <Link href = "/dashboard">Dashboard</Link>}
+        <nav className="bg-emerald-600 h-16 flex items-center px-6">
+            <div className="flex gap-6">
+                <Link href="/" className="text-white text-lg hover:text-emerald-200">Home</Link>
+                <Link href="/missions" className="text-white text-lg hover:text-emerald-200">Missions</Link>
+                {isVerifier && <Link href="/dashboard" className="text-white text-lg hover:text-emerald-200">Dashboard</Link>}
             </div>
-            <div className = "navright">
-                <Link href = "/report">Report Issue</Link>
+            <div className="flex gap-4 ml-auto items-center">
+                <Link href="/report">
+                    <Button variant="secondary">Report Issue</Button>
+                </Link>
                 <AuthStatus />
             </div>
         </nav>

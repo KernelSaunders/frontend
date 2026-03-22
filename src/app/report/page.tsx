@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getProducts, submitIssue, Product } from "@/lib/api";
 import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@/components/Button";
 
 export default function Report() {
   // form field state
@@ -55,26 +56,21 @@ export default function Report() {
   //  Success screen — shown after a successful submission
   if (success) {
     return (
-      <main className="reportpage">
-        <div className="reportcontainer">
-          <h1>Thank you!</h1>
-          <p style={{ textAlign: "center", marginTop: 16 }}>
+      <main className="min-h-screen flex items-center justify-center p-5">
+        <div className="w-full max-w-xl">
+          <h1 className="text-2xl font-bold text-center mb-4">Thank you!</h1>
+          <p className="text-center text-gray-600 mb-6">
             Your report has been submitted. A verifier will review it soon.
           </p>
-          <button
-            type="button"
-            className="reportsubmit"
-            style={{ marginTop: 24 }}
-            onClick={() => {
+          <Button onClick={() => {
               // Reset everything so the user can file another report
               setSuccess(false);
               setProductId("");
               setIssueType("");
               setDescription("");
-            }}
-          >
+            }} className="w-full">
             Submit another report
-          </button>
+          </Button>
         </div>
       </main>
     );
@@ -82,19 +78,19 @@ export default function Report() {
 
   // Main form
   return (
-    <main className="reportpage">
-      <div className="reportcontainer">
-        <h1>Report an issue</h1>
+    <main className="min-h-screen flex mt-10 justify-center p-5">
+      <div className="w-full max-w-xl">
+        <h1 className="text-2xl font-bold text-center mb-8">Report an issue</h1>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: 24 }}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Product picker */}
-          <div className="formrow" style={{ marginBottom: 16 }}>
-            <label htmlFor="product">Product:</label>
+          <div>
+            <label htmlFor="product" className="block text-sm font-medium mb-1">Product:</label>
             <select
               id="product"
-              className="reportinput"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
             >
               <option value="">Select a product</option>
               {products.map((p) => (
@@ -106,13 +102,13 @@ export default function Report() {
           </div>
 
           {/* Issue type */}
-          <div className="formrow" style={{ marginBottom: 16 }}>
-            <label htmlFor="issueType">Type:</label>
+          <div>
+            <label htmlFor="issueType" className="block text-sm font-medium mb-1">Type:</label>
             <select
               id="issueType"
-              className="reportinput"
               value={issueType}
               onChange={(e) => setIssueType(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
             >
               <option value="">Select a type</option>
               <option value="claim_false">Wrong claim</option>
@@ -123,39 +119,29 @@ export default function Report() {
           </div>
 
           {/* Description */}
-          <div className="formrow" style={{ marginBottom: 24 }}>
-            <label htmlFor="desc">Details:</label>
+          <div>
+            <label htmlFor="desc" className="block text-sm font-medium mb-1">Details:</label>
             <textarea
               id="desc"
-              className="reportinput"
               rows={5}
               placeholder="Describe the issue..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
             />
           </div>
 
           {/* Error banner */}
           {error && (
-            <p
-              style={{
-                color: "#f87171",
-                marginBottom: 16,
-                textAlign: "center",
-              }}
-            >
+            <p className="text-red-500 text-center">
               {error}
             </p>
           )}
 
           {/* Submit button */}
-          <button
-            type="submit"
-            className="reportsubmit"
-            disabled={!canSubmit || submitting}
-          >
+          <Button type="submit" disabled={!canSubmit || submitting} className="w-full">
             {submitting ? "Submitting..." : "Submit Report"}
-          </button>
+          </Button>
         </form>
       </div>
     </main>

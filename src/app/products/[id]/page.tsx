@@ -6,6 +6,8 @@ import { ClaimsSection } from "@/components/ClaimsSection";
 import { MissionCard } from "@/components/MissionCard";
 import { CompareButton } from "@/components/CompareButton";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -77,6 +79,7 @@ export default async function ProductPage({ params }: PageProps) {
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Missions</h2>
+        <p className="mb-4 text-sm text-gray-600">Sign in before answering to save points and mission progress.</p>
         {missionsError ? (
           <p className="text-sm text-red-800">{missionsError}</p>
         ) : missions.length === 0 ? (
