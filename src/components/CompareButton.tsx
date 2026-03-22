@@ -57,7 +57,7 @@ export function CompareButton({ productId }: CompareButtonProps) {
     <div className="relative inline-block" ref={dropdownRef}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="text-sm px-3 py-1 border border-white/30 rounded text-white hover:bg-white/10"
+        className="text-sm px-3 py-1 border border-black/30 rounded text-black hover:bg-white/10"
       >
         Compare with another product
       </button>
