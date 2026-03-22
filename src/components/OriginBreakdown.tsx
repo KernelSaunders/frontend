@@ -16,10 +16,6 @@ export function OriginBreakdown({ inputs }: OriginBreakdownProps) {
     (a, b) => (Number(b.percentage) || 0) - (Number(a.percentage) || 0)
   );
 
-  const total = sortedInputs.reduce((sum, input) => sum + (input.percentage || 0), 0);
-
-  const Colours = ["#D45B5B" ,"#A4E457", "#60E0E0", "#DD21B4", "#DDA121"]
-
   return (
     <div className="space-y-6">
       <OriginPieChart inputs={inputs} />

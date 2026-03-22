@@ -49,8 +49,8 @@ export function ClaimsSection({ claims, productId }: ClaimsSectionProps) {
           <p>No claims available.</p>
         ) : (
           <div className="space-y-4">
-            {claims.map((claim) => (
-              <ClaimCard key={claim.claim_id} claim={claim} productId={productId} />
+            {claims.map((claim, index) => (
+              <ClaimCard key={claim.claim_id ?? index} claim={claim} productId={productId} />
             ))}
           </div>
         )

@@ -14,12 +14,13 @@ function ClaimList({ claims }: { claims: Claim[] }) {
   }
   return (
     <div className="space-y-3">
-      {claims.map((claim) => {
+      {claims.map((claim, index) => {
+        const label = claim.confidence_label ?? "unknown";
         const style =
-          confidenceStyles[claim.confidence_label] ??
+          confidenceStyles[label] ??
           "bg-gray-100 text-gray-700 border-gray-300";
         return (
-          <div key={claim.claim_id} className="border rounded p-3">
+          <div key={claim.claim_id ?? index} className="border rounded p-3">
             <div className="flex justify-between items-start gap-3">
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide">
@@ -35,7 +36,7 @@ function ClaimList({ claims }: { claims: Claim[] }) {
               <span
                 className={`text-xs font-semibold border px-2 py-1 rounded whitespace-nowrap shrink-0 ${style}`}
               >
-                {claim.confidence_label.replace("_", " ")}
+                {label.replace("_", " ")}
               </span>
             </div>
           </div>
