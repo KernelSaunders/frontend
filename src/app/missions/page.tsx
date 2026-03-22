@@ -64,6 +64,37 @@ export default function Missions() {
           </section>
 
           <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900">Badges</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {progress.badges.map((badge) => (
+                <div
+                  key={badge.id}
+                  className={`rounded-xl border p-4 ${badge.earned ? "border-emerald-200 bg-emerald-50" : "border-gray-100 bg-slate-50"}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${badge.earned ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-600"}`}>
+                      {badge.icon}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{badge.name}</p>
+                      <p className="mt-1 text-sm text-slate-600">{badge.description}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-sm text-slate-600">
+                    {badge.earned ? (
+                      <p className="font-medium text-emerald-700">Earned</p>
+                    ) : (
+                      <p>
+                        {badge.progress_current} / {badge.progress_target}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-slate-900">Progress by tier</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div>
@@ -99,7 +130,7 @@ export default function Missions() {
                       <p className="text-sm text-slate-600">
                         {new Date(completion.completed_at).toLocaleString()}
                       </p>
-                    </div>3
+                    </div>
                   </div>
                 ))}
               </div>

@@ -311,6 +311,16 @@ export interface RecentMissionCompletion {
   completed_at: string;
 }
 
+export interface MissionBadge {
+  id: string;
+  name: string;
+  description: string;
+  earned: boolean;
+  progress_current: number;
+  progress_target: number;
+  icon: string;
+}
+
 export interface UserProgressSummary {
   user_id: string;
   total_completed: number;
@@ -322,6 +332,7 @@ export interface UserProgressSummary {
   };
   missions: UserMissionProgress[];
   recent_completions: RecentMissionCompletion[];
+  badges: MissionBadge[];
 }
 
 export async function attemptMission(
