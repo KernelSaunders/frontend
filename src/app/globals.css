@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #F3F5F4;
   --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-heading: var(--font-titillium);
+  --font-subheading: var(--font-martel);
+  --font-body: var(--font-overpass);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-overpass), Arial, Helvetica, sans-serif;
+}
+
+.reportpage {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.reportcontainer {
+  width: 100%;
+  max-width: 600px;
+}
+
+.reportcontainer h1 {
+  text-align: center;
+  font-weight: bold;
+  font-size: 25px;
+  margin-bottom: 50px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formrow {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.formrow label {
+  font-size: 19px;
+  width: 120px;
+  flex-shrink: 0;
+  color: #1F2A24;
+}
+
+.reportinput {
+  border: 1px solid black;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: transparent;
+  color: #1F2A24;
+  font-size: 16px;
+}
+
+.reportinput:focus {
+  outline: none;
+  border-color: #7c78c9;
+}
+
+textarea.reportinput {
+  resize: vertical;
+}
+
+.reportsubmit {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #4A4680;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reportsubmit:hover:not(:disabled) {
+  background: #3D396B;
+}
+
+.reportsubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

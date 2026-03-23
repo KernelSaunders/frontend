@@ -2,8 +2,9 @@ import Link from "next/link";
 import { getMissionsForProduct, getProductTraceability, type QuestMission } from "@/lib/api";
 import { Timeline } from "@/components/Timeline";
 import { OriginBreakdown } from "@/components/OriginBreakdown";
-import { ClaimCard } from "@/components/ClaimCard";
+import { ClaimsSection } from "@/components/ClaimsSection";
 import { MissionCard } from "@/components/MissionCard";
+import { CompareButton } from "@/components/CompareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -47,15 +48,23 @@ export default async function ProductPage({ params }: PageProps) {
       <Link href="/" className="underline">Back to home</Link>
 
       <section className="mt-6">
-        <h1 className="text-2xl font-bold">{product.name}</h1>
-        {product.brand && <p className="text-gray-400">{product.brand}</p>}
-        <p className="text-sm text-gray-500">Category: {product.category}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">{product.name}</h1>
+            {product.brand && <p className="text-gray-600">{product.brand}</p>}
+            <p className="text-sm text-gray-500">Category: {product.category}</p>
+          </div>
+          <CompareButton productId={id} />
+        </div>
         {product.description && <p className="mt-2">{product.description}</p>}
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Traceability Timeline</h2>
+        <div className="rounded-lg border border-[#E3E8E5] bg-white p-7 shadow-[0_8px_24px_rgba(20,30,24,0.08)]">
+          <h2 className="text-xl font-semibold mb-4">Traceability Timeline</h2>
         <Timeline stages={stages} />
+        </div>
+        
       </section>
 
       <section className="mt-8">
@@ -65,19 +74,12 @@ export default async function ProductPage({ params }: PageProps) {
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Claims</h2>
-        {claims.length === 0 ? (
-          <p>No claims available.</p>
-        ) : (
-          <div className="space-y-4">
-            {claims.map((claimData) => (
-              <ClaimCard key={claimData.claim.claim_id} claimData={claimData} productId={id} />
-            ))}
-          </div>
-        )}
+        <ClaimsSection claims={claims} productId={id} />
       </section>
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Missions</h2>
+        <p className="mb-4 text-sm text-gray-600">Sign in before answering to save points and mission progress.</p>
         {missionsError ? (
           <p className="text-sm text-red-800">{missionsError}</p>
         ) : missions.length === 0 ? (

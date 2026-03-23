@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { Button } from "./Button";
 
 export function AuthStatus() {
   const [email, setEmail] = useState<string | null>(null);
@@ -30,21 +31,17 @@ export function AuthStatus() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm text-gray-700">
+    <div className="flex items-center gap-3 text-sm text-emerald-50">
       {email ? (
         <>
-          <span>Signed in as {email}</span>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="border rounded px-3 py-1 hover:bg-gray-100"
-          >
+          <span>{email}</span>
+          <Button variant="secondary" onClick={handleSignOut}>
             Sign out
-          </button>
+          </Button>
         </>
       ) : (
-        <Link href="/login" className="border rounded px-3 py-1 hover:bg-gray-100">
-          Sign in with Google
+        <Link href="/login">
+          <Button variant="secondary">Sign in</Button>
         </Link>
       )}
     </div>

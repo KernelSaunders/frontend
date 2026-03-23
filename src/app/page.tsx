@@ -14,7 +14,7 @@ async function ProductList() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-3">
       {products.map((product) => (
         <ProductCard key={product.product_id} product={product} />
       ))}
@@ -24,10 +24,10 @@ async function ProductList() {
 
 export default function Home() {
   return (
-    <main className="max-w-4xl mx-auto p-4">
+    <main className="max-w-4xl mx-auto mt-10 p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Product Traceability</h1>
-        <AuthStatus />
+
       </div>
 
       <p className="mb-6">

@@ -56,15 +56,13 @@ export interface ChangeLogEntry {
   entity_id: string;
   changed_by?: string;
   timestamp: string;
-  change_summary?: {
-    action: string;
-    old_confidence?: string;
-    new_confidence?: string;
-    verification_notes?: string;
-    old_verified_status?: boolean;
-    new_verified_status?: boolean;
-  };
+  change_summary?: Record<string, unknown> | null;
   created_at: string;
+  product?: {
+    product_id: string;
+    product_name: string;
+    product_link: string;
+  } | null;
 }
 
 export interface Evidence {
@@ -84,11 +82,25 @@ export interface ClaimWithEvidence {
   evidence: Evidence[];
 }
 
+export interface ClaimEvidenceGroup {
+  claim_id: string;
+  claim_type: string;
+  claim_text: string;
+  confidence_label: "verified" | "partially_verified" | "unverified";
+  rationale: string | null;
+  evidence: Evidence[];
+}
+
+export interface ProductEvidenceView {
+  product_id: string;
+  groups: ClaimEvidenceGroup[];
+}
+
 export interface ProductTraceability {
   product: Product;
   stages: Stage[];
   input_shares: InputShare[];
-  claims: ClaimWithEvidence[];
+  claims: Claim[];
 }
 
 export interface UserRoleResponse {
@@ -254,6 +266,19 @@ export interface QuestMission {
   created_at: string;
 }
 
+export async function getClaimEvidence(productId: string, claimId: string): Promise<ClaimEvidenceGroup> {
+  const res = await fetch(`${API_BASE}/products/${productId}/claims/${claimId}/evidence`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch claim evidence");
+  return res.json();
+}
+
+
+export async function getProductEvidence(productId: string): Promise<ProductEvidenceView> {
+  const res = await fetch(`${API_BASE}/products/${productId}/evidence`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch evidence");
+  return res.json();
+}
+
 export async function getMissionsForProduct(productId: string): Promise<QuestMission[]> {
   const res = await fetch(`${API_BASE}/products/${productId}/missions`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch missions");
@@ -262,18 +287,263 @@ export async function getMissionsForProduct(productId: string): Promise<QuestMis
 
 export interface MissionAttemptResult {
   correct: boolean;
+  points_awarded: number;
+  completed: boolean;
+  attempts: number | null;
+}
+
+export interface UserMissionProgress {
+  mission_id: string;
+  tier: "basic" | "intermediate" | "advanced";
+  completed: boolean;
+  score: number;
+  attempts: number | null;
+  completed_at: string | null;
+}
+
+export interface RecentMissionCompletion {
+  mission_id: string;
+  question: string;
+  tier: "basic" | "intermediate" | "advanced";
+  score: number;
+  completed_at: string;
+}
+
+export interface MissionBadge {
+  id: string;
+  name: string;
+  description: string;
+  earned: boolean;
+  progress_current: number;
+  progress_target: number;
+  icon: string;
+}
+
+export interface UserProgressSummary {
+  user_id: string;
+  total_completed: number;
+  total_points: number;
+  missions_completed_by_tier: {
+    basic: number;
+    intermediate: number;
+    advanced: number;
+  };
+  missions: UserMissionProgress[];
+  recent_completions: RecentMissionCompletion[];
+  badges: MissionBadge[];
 }
 
 export async function attemptMission(
   missionId: string,
   option_index: number
 ): Promise<MissionAttemptResult> {
-  const res = await fetch(`${API_BASE}/missions/${missionId}/attempts`, {
+  const res = await apiFetch(`/missions/${missionId}/attempts`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ option_index }),
   });
-  if (!res.ok) throw new Error("Failed to submit attempt");
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Sign in to save mission progress");
+    throw new Error("Failed to submit attempt");
+  }
   return res.json();
 }
 
+export async function getMyProgress(): Promise<UserProgressSummary> {
+  const res = await apiFetch("/users/me/progress");
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Sign in to view progress");
+    throw new Error("Failed to fetch progress");
+  }
+  return res.json();
+}
+
+// --- Dashboard CRUD functions (token-based auth) ---
+
+function tokenAuthHeaders(token: string) {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export async function getUserRole(token: string): Promise<{ user_id: string; role: string }> {
+  const res = await fetch(`${API_BASE}/users/me/role`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch role");
+  return res.json();
+}
+
+export async function getAuditLogs(token: string, limit = 50): Promise<ChangeLogEntry[]> {
+  const res = await fetch(`${API_BASE}/maintainers/audit-logs?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch audit logs");
+  return res.json();
+}
+
+export async function createProduct(
+  token: string,
+  data: { name: string; category: string; brand?: string; description?: string; image?: string }
+): Promise<Product> {
+  const res = await fetch(`${API_BASE}/products`, {
+    method: "POST",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create product");
+  return res.json();
+}
+
+export async function updateProduct(
+  token: string,
+  productId: string,
+  data: { name?: string; category?: string; brand?: string; description?: string; image?: string }
+): Promise<Product> {
+  const res = await fetch(`${API_BASE}/products/${productId}`, {
+    method: "PUT",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update product");
+  return res.json();
+}
+
+export async function createStage(
+  token: string,
+  productId: string,
+  data: {
+    stage_type: string;
+    location_country?: string;
+    location_region?: string;
+    start_date?: string;
+    end_date?: string;
+    description?: string;
+    sequence_order?: number;
+  }
+): Promise<Stage> {
+  const res = await fetch(`${API_BASE}/products/${productId}/stages`, {
+    method: "POST",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create stage");
+  return res.json();
+}
+
+export async function updateStage(
+  token: string,
+  productId: string,
+  stageId: string,
+  data: {
+    stage_type?: string;
+    location_country?: string;
+    location_region?: string;
+    start_date?: string;
+    end_date?: string;
+    description?: string;
+    sequence_order?: number;
+  }
+): Promise<Stage> {
+  const res = await fetch(`${API_BASE}/products/${productId}/stages/${stageId}`, {
+    method: "PUT",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update stage");
+  return res.json();
+}
+
+export async function createClaim(
+  token: string,
+  productId: string,
+  data: { claim_type: string; claim_text: string; rationale: string }
+): Promise<Claim> {
+  const res = await fetch(`${API_BASE}/products/${productId}/claims`, {
+    method: "POST",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify({ ...data, confidence_label: "unverified" }),
+  });
+  if (!res.ok) throw new Error("Failed to create claim");
+  return res.json();
+}
+
+export async function createEvidence(
+  token: string,
+  productId: string,
+  claimId: string,
+  data: {
+    type: string;
+    issuer: string;
+    date?: string;
+    summary?: string;
+    file_reference?: string;
+    stage_id?: string;
+  }
+): Promise<Evidence> {
+  const res = await fetch(`${API_BASE}/products/${productId}/claims/${claimId}/evidence`, {
+    method: "POST",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create evidence");
+  return res.json();
+}
+
+export interface IssueReport {
+  issue_id: string;
+  product_id: string;
+  type: string;
+  description: string;
+  status: string;
+  resolution_note: string | null;
+  reported_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function submitIssue(
+  data: { product_id: string; type: string; description: string },
+  token?: string
+): Promise<IssueReport> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}/issues`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to submit issue");
+  return res.json();
+}
+
+export async function getIssues(
+  token: string,
+  filters?: { status?: string; product_id?: string }
+): Promise<IssueReport[]> {
+  const url = new URL(`${API_BASE}/issues`);
+  if (filters?.status) url.searchParams.set("status", filters.status);
+  if (filters?.product_id) url.searchParams.set("product_id", filters.product_id);
+  const res = await fetch(url.toString(), {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch issues");
+  return res.json();
+}
+
+export async function updateIssue(
+  token: string,
+  issueId: string,
+  data: { status: string; resolution_note?: string }
+): Promise<IssueReport> {
+  const res = await fetch(`${API_BASE}/issues/${issueId}`, {
+    method: "PUT",
+    headers: tokenAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update issue");
+  return res.json();
+}

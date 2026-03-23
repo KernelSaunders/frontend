@@ -12,7 +12,7 @@ export function Timeline({ stages }: TimelineProps) {
   return (
     <div className="space-y-4">
       {stages.map((stage, index) => (
-        <div key={stage.stage_id} className="border-l-2 border-gray-300 pl-4">
+        <div key={stage.stage_id} className="rounded-lg border-l-4 border-[#30C071] pl-4 p-2 shadow-[0_8px_24px_rgba(20,30,24,0.08)]">
           <div className="font-semibold">
             {index + 1}. {stage.stage_type}
           </div>
