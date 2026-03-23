@@ -27,7 +27,7 @@ export default function NewProductPage() {
       if (!t) { router.replace("/login"); return; }
       try {
         const { role } = await getUserRole(t);
-        if (role !== "verifier") { router.replace("/"); return; }
+        if (role !== "verifier" && role !== "maintainer") { router.replace("/"); return; }
       } catch {
         router.replace("/");
         return;

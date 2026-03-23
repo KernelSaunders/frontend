@@ -37,7 +37,7 @@ export default function DashboardPage() {
 
       try {
         const { role } = await getUserRole(token);
-        if (role !== "verifier") {
+        if (role !== "verifier" && role !== "maintainer") {
           router.replace("/");
           return;
         }

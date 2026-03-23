@@ -56,7 +56,7 @@ export default function IssuesPage() {
       }
       try {
         const { role } = await getUserRole(t);
-        if (role !== "verifier") {
+        if (role !== "verifier" && role !== "maintainer") {
           router.replace("/");
           return;
         }

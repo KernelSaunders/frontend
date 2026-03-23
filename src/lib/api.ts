@@ -56,15 +56,13 @@ export interface ChangeLogEntry {
   entity_id: string;
   changed_by?: string;
   timestamp: string;
-  change_summary?: {
-    action: string;
-    old_confidence?: string;
-    new_confidence?: string;
-    verification_notes?: string;
-    old_verified_status?: boolean;
-    new_verified_status?: boolean;
-  };
+  change_summary?: Record<string, unknown> | null;
   created_at: string;
+  product?: {
+    product_id: string;
+    product_name: string;
+    product_link: string;
+  } | null;
 }
 
 export interface Evidence {
@@ -374,6 +372,15 @@ export async function getUserRole(token: string): Promise<{ user_id: string; rol
     cache: "no-store",
   });
   if (!res.ok) throw new Error("Failed to fetch role");
+  return res.json();
+}
+
+export async function getAuditLogs(token: string, limit = 50): Promise<ChangeLogEntry[]> {
+  const res = await fetch(`${API_BASE}/maintainers/audit-logs?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch audit logs");
   return res.json();
 }
 

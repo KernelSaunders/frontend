@@ -8,18 +8,18 @@ import { supabase } from "@/lib/supabaseClient";
 import { getUserRole } from "@/lib/api";
 
 export function NavBar() {
-    const [isVerifier, setIsVerifier] = useState(false);
+    const [role, setRole] = useState<string | null>(null);
 
     useEffect(() => {
         async function checkRole() {
             const { data } = await supabase.auth.getSession();
             const token = data.session?.access_token;
-            if (!token) { setIsVerifier(false); return; }
+            if (!token) { setRole(null); return; }
             try {
                 const { role } = await getUserRole(token);
-                setIsVerifier(role === "verifier");
+                setRole(role);
             } catch {
-                setIsVerifier(false);
+                setRole(null);
             }
         }
 
@@ -38,7 +38,8 @@ export function NavBar() {
             <div className="flex gap-6">
                 <Link href="/" className="text-white text-lg hover:text-emerald-200">Home</Link>
                 <Link href="/missions" className="text-white text-lg hover:text-emerald-200">Missions</Link>
-                {isVerifier && <Link href="/dashboard" className="text-white text-lg hover:text-emerald-200">Dashboard</Link>}
+                {(role === "verifier" || role === "maintainer") && <Link href="/dashboard" className="text-white text-lg hover:text-emerald-200">Dashboard</Link>}
+                {role === "maintainer" && <Link href="/maintainers" className="text-white text-lg hover:text-emerald-200">Maintainers</Link>}
             </div>
             <div className="flex gap-4 ml-auto items-center">
                 <Link href="/report">
