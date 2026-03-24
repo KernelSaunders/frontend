@@ -5,7 +5,17 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "./Button";
 
-export function AuthStatus() {
+type AuthStatusProps = {
+  className?: string;
+  emailClassName?: string;
+  buttonClassName?: string;
+};
+
+export function AuthStatus({
+  className = "",
+  emailClassName = "",
+  buttonClassName = "",
+}: AuthStatusProps) {
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,17 +41,17 @@ export function AuthStatus() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm text-emerald-50">
+    <div className={`flex items-center gap-3 text-sm text-emerald-50 ${className}`}>
       {email ? (
         <>
-          <span>{email}</span>
-          <Button variant="secondary" onClick={handleSignOut}>
+          <span className={emailClassName}>{email}</span>
+          <Button variant="secondary" className={buttonClassName} onClick={handleSignOut}>
             Sign out
           </Button>
         </>
       ) : (
         <Link href="/login">
-          <Button variant="secondary">Sign in</Button>
+          <Button variant="secondary" className={buttonClassName}>Sign in</Button>
         </Link>
       )}
     </div>

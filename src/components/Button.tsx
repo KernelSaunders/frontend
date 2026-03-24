@@ -3,7 +3,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export function Button({ variant = "primary", className = "", ...props }: ButtonProps) {
-  const base = "h-12 px-6 font-semibold rounded-xl transition";
+  const base = "inline-flex h-12 items-center justify-center px-6 font-semibold rounded-xl transition";
   
   const variants = {
     primary: "bg-emerald-600 text-white hover:bg-emerald-700",

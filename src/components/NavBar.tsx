@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AuthStatus } from "./AuthStatus";
 import { Button } from "./Button";
 import { supabase } from "@/lib/supabaseClient";
@@ -9,6 +10,8 @@ import { getUserRole } from "@/lib/api";
 
 export function NavBar() {
     const [role, setRole] = useState<string | null>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         async function checkRole() {
@@ -32,27 +35,87 @@ export function NavBar() {
         return () => { subscription.subscription.unsubscribe(); };
     }, []);
 
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [pathname]);
+
+    const navLinks = [
+        { href: "/", label: "Home", show: true },
+        { href: "/missions", label: "Missions", show: true },
+        { href: "/dashboard", label: "Dashboard", show: role === "verifier" || role === "maintainer" },
+        { href: "/maintainers", label: "Maintainers", show: role === "maintainer" },
+    ].filter((link) => link.show);
 
     return (
-        <nav className="bg-emerald-600 h-16 flex items-center px-6">
-            <div className="flex items-center gap-6">
-                <Link
-                    href="/"
-                    className="inline-flex h-16 items-center text-white text-lg font-semibold tracking-[0.06em] hover:text-emerald-100"
+        <nav className="bg-emerald-600 px-4 sm:px-6">
+            <div className="flex min-h-16 items-center gap-4">
+                <div className="flex items-center gap-6">
+                    <Link
+                        href="/"
+                        className="inline-flex min-h-16 items-center text-white text-lg font-semibold tracking-[0.06em] hover:text-emerald-100"
+                    >
+                        Sourcr
+                    </Link>
+                    <div className="hidden md:flex md:items-center md:gap-6">
+                        {navLinks.map((link) => (
+                            <Link key={link.href} href={link.href} className="inline-flex min-h-16 items-center text-white text-lg hover:text-emerald-200">
+                                {link.label}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="ml-auto hidden md:flex md:items-center md:gap-4">
+                    <Link href="/report">
+                        <Button variant="secondary">Report Issue</Button>
+                    </Link>
+                    <AuthStatus />
+                </div>
+
+                <button
+                    type="button"
+                    aria-expanded={isMenuOpen}
+                    aria-controls="mobile-navigation"
+                    aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                    onClick={() => setIsMenuOpen((open) => !open)}
+                    className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-500/60 bg-emerald-500/20 text-white transition hover:bg-emerald-500/30 md:hidden"
                 >
-                    Sourcr
-                </Link>
-                <Link href="/" className="inline-flex h-16 items-center text-white text-lg hover:text-emerald-200">Home</Link>
-                <Link href="/missions" className="inline-flex h-16 items-center text-white text-lg hover:text-emerald-200">Missions</Link>
-                {(role === "verifier" || role === "maintainer") && <Link href="/dashboard" className="inline-flex h-16 items-center text-white text-lg hover:text-emerald-200">Dashboard</Link>}
-                {role === "maintainer" && <Link href="/maintainers" className="inline-flex h-16 items-center text-white text-lg hover:text-emerald-200">Maintainers</Link>}
+                    <span className="sr-only">Menu</span>
+                    <span className="flex w-5 flex-col gap-1.5">
+                        <span className={`block h-0.5 w-full rounded bg-current transition ${isMenuOpen ? "translate-y-2 rotate-45" : ""}`} />
+                        <span className={`block h-0.5 w-full rounded bg-current transition ${isMenuOpen ? "opacity-0" : ""}`} />
+                        <span className={`block h-0.5 w-full rounded bg-current transition ${isMenuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+                    </span>
+                </button>
             </div>
-            <div className="flex gap-4 ml-auto items-center">
-                <Link href="/report">
-                    <Button variant="secondary">Report Issue</Button>
-                </Link>
-                <AuthStatus />
-            </div>
+
+            {isMenuOpen && (
+                <div id="mobile-navigation" className="border-t border-emerald-500/60 py-4 md:hidden">
+                    <div className="flex flex-col gap-2">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className="rounded-xl px-3 py-3 text-base font-medium text-white transition hover:bg-emerald-500/25"
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                        <Link href="/report" className="pt-2">
+                            <Button variant="secondary" className="w-full justify-center">
+                                Report Issue
+                            </Button>
+                        </Link>
+                        <div className="rounded-xl border border-emerald-500/50 bg-emerald-700/20 p-3">
+                            <AuthStatus
+                                className="w-full flex-col items-start gap-3"
+                                emailClassName="max-w-full break-all text-emerald-50"
+                                buttonClassName="w-full justify-center"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </nav>
     )
 }
