@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { AuthStatus } from "./AuthStatus";
 import { Button } from "./Button";
 import { supabase } from "@/lib/supabaseClient";
 import { getUserRole } from "@/lib/api";
+import { hasMaintainerAccess, hasVerifierAccess } from "@/lib/roles";
 
 export function NavBar() {
     const [role, setRole] = useState<string | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const pathname = usePathname();
 
     useEffect(() => {
         async function checkRole() {
@@ -35,15 +34,10 @@ export function NavBar() {
         return () => { subscription.subscription.unsubscribe(); };
     }, []);
 
-    useEffect(() => {
-        setIsMenuOpen(false);
-    }, [pathname]);
-
     const navLinks = [
-        { href: "/", label: "Home", show: true },
         { href: "/missions", label: "Missions", show: true },
-        { href: "/dashboard", label: "Dashboard", show: role === "verifier" || role === "maintainer" },
-        { href: "/maintainers", label: "Maintainers", show: role === "maintainer" },
+        { href: "/dashboard", label: "Verifiers", show: hasVerifierAccess(role) },
+        { href: "/maintainers", label: "Maintainers", show: hasMaintainerAccess(role) },
     ].filter((link) => link.show);
 
     return (
@@ -96,12 +90,13 @@ export function NavBar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
+                                onClick={() => setIsMenuOpen(false)}
                                 className="rounded-xl px-3 py-3 text-base font-medium text-white transition hover:bg-emerald-500/25"
                             >
                                 {link.label}
                             </Link>
                         ))}
-                        <Link href="/report" className="pt-2">
+                        <Link href="/report" className="pt-2" onClick={() => setIsMenuOpen(false)}>
                             <Button variant="secondary" className="w-full justify-center">
                                 Report Issue
                             </Button>

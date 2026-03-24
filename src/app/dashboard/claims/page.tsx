@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { getUserRole, getPendingClaims, verifyClaim, type Claim } from "@/lib/api";
-import { Button } from "@/components/Button";
+import { hasVerifierAccess } from "@/lib/roles";
 
 export default function ClaimsReviewPage() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function ClaimsReviewPage() {
       if (!t) { router.replace("/login"); return; }
       try {
         const { role } = await getUserRole(t);
-        if (role !== "verifier" && role !== "maintainer") { router.replace("/"); return; }
+        if (!hasVerifierAccess(role)) { router.replace("/"); return; }
       } catch {
         router.replace("/");
         return;
