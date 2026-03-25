@@ -267,16 +267,25 @@ export async function getProductTraceability(productId: string): Promise<Product
   return res.json();
 }
 
-export interface QuestMission {
+interface QuestMissionBase {
   mission_id: string;
   product_id: string;
   tier: "basic" | "intermediate" | "advanced";
   question: string;
-  type: "multiple_choice";
-  options: string[];
   explanation_link: string | null;
   created_at: string;
 }
+
+export interface MultipleChoiceQuestMission extends QuestMissionBase {
+  type: "multiple_choice";
+  options: string[];
+}
+
+export interface NumericQuestMission extends QuestMissionBase {
+  type: "numeric";
+}
+
+export type QuestMission = MultipleChoiceQuestMission | NumericQuestMission;
 
 export async function getClaimEvidence(productId: string, claimId: string): Promise<ClaimEvidenceGroup> {
   const res = await fetch(`${API_BASE}/products/${productId}/claims/${claimId}/evidence`, { cache: "no-store" });
@@ -365,11 +374,11 @@ export interface UserProgressSummary {
 
 export async function attemptMission(
   missionId: string,
-  option_index: number
+  attempt: { option_index: number } | { numeric_answer: number }
 ): Promise<MissionAttemptResult> {
   const res = await apiFetch(`/missions/${missionId}/attempts`, {
     method: "POST",
-    body: JSON.stringify({ option_index }),
+    body: JSON.stringify(attempt),
   });
   if (!res.ok) {
     if (res.status === 401) throw new Error("Sign in to save mission progress");
