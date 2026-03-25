@@ -25,18 +25,22 @@ export function SearchForm() {
   return (
     <>
       <div className="bg-white border border-emerald-50 rounded-xl shadow-sm p-5">
-        <form onSubmit={handleSubmit} className="flex gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:flex-row md:items-center">
           <input
             type="text"
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
             placeholder="Enter product ID"
-            className="flex-1 h-12 rounded-2xl border border-gray-200 px-4 text-base text-emerald-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15"
+            className="w-full min-w-0 flex-1 h-12 rounded-2xl border border-gray-200 px-4 text-base text-emerald-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15"
           />
-          <Button type="submit">Search</Button>
-          <Button type="button" variant="secondary" onClick={() => setScannerOpen(true)}>
-            Scan Code
-          </Button>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex md:shrink-0">
+            <Button type="submit" className="w-full justify-center md:w-auto">
+              Search
+            </Button>
+            <Button type="button" variant="secondary" className="w-full justify-center md:w-auto" onClick={() => setScannerOpen(true)}>
+              Scan Code
+            </Button>
+          </div>
         </form>
       </div>
 

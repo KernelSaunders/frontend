@@ -14,6 +14,7 @@ import {
   type IssueReport,
 } from "@/lib/api";
 import { Button } from "@/components/Button";
+import { hasVerifierAccess } from "@/lib/roles";
 
 type Tab = "products" | "claims" | "issues";
 
@@ -37,7 +38,7 @@ export default function DashboardPage() {
 
       try {
         const { role } = await getUserRole(token);
-        if (role !== "verifier" && role !== "maintainer") {
+        if (!hasVerifierAccess(role)) {
           router.replace("/");
           return;
         }

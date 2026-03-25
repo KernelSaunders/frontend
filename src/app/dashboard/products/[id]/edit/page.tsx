@@ -5,18 +5,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import {
+  getEvidenceFileUrl,
+  getProductEvidence,
+  getProductStageEvidence,
   getUserRole,
   getProductTraceability,
   updateProduct,
   createStage,
   updateStage,
   createClaim,
-  createEvidence,
-  type Product,
+  uploadEvidence,
   type Stage,
   type ClaimWithEvidence,
+  type Evidence,
 } from "@/lib/api";
 import { Button } from "@/components/Button";
+import { hasVerifierAccess } from "@/lib/roles";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -40,22 +44,35 @@ export default function EditProductPage({ params }: PageProps) {
   // Related data
   const [stages, setStages] = useState<Stage[]>([]);
   const [claims, setClaims] = useState<ClaimWithEvidence[]>([]);
+  const [stageEvidence, setStageEvidence] = useState<Record<string, Evidence[]>>({});
 
   // Form toggles
   const [showAddStage, setShowAddStage] = useState(false);
   const [showAddClaim, setShowAddClaim] = useState(false);
   const [addEvidenceForClaim, setAddEvidenceForClaim] = useState<string | null>(null);
+  const [addEvidenceForStage, setAddEvidenceForStage] = useState<string | null>(null);
   const [editingStage, setEditingStage] = useState<string | null>(null);
 
-  const loadProduct = useCallback(async (t: string, pid: string) => {
-    const data = await getProductTraceability(pid);
+  const loadProduct = useCallback(async (pid: string) => {
+    const [data, claimEvidence, stageEvidenceData] = await Promise.all([
+      getProductTraceability(pid),
+      getProductEvidence(pid),
+      getProductStageEvidence(pid),
+    ]);
+    const claimEvidenceMap = new Map(
+      claimEvidence.groups.map((group) => [group.claim_id, group.evidence])
+    );
+    const stageEvidenceMap = Object.fromEntries(
+      stageEvidenceData.groups.map((group) => [group.stage_id, group.evidence])
+    );
     setName(data.product.name);
     setCategory(data.product.category);
     setBrand(data.product.brand ?? "");
     setDescription(data.product.description ?? "");
     setImage(data.product.image ?? "");
     setStages(data.stages);
-    setClaims(data.claims.map((c) => ({ claim: c, evidence: [] })));
+    setClaims(data.claims.map((c) => ({ claim: c, evidence: claimEvidenceMap.get(c.claim_id) ?? [] })));
+    setStageEvidence(stageEvidenceMap);
   }, []);
 
   useEffect(() => {
@@ -68,7 +85,7 @@ export default function EditProductPage({ params }: PageProps) {
       if (!t) { router.replace("/login"); return; }
       try {
         const { role } = await getUserRole(t);
-        if (role !== "verifier" && role !== "maintainer") { router.replace("/"); return; }
+        if (!hasVerifierAccess(role)) { router.replace("/"); return; }
       } catch {
         router.replace("/");
         return;
@@ -76,7 +93,7 @@ export default function EditProductPage({ params }: PageProps) {
       setToken(t);
 
       try {
-        await loadProduct(t, id);
+        await loadProduct(id);
       } catch {
         setMessage({ text: "Failed to load product", type: "error" });
       }
@@ -126,7 +143,7 @@ export default function EditProductPage({ params }: PageProps) {
         end_date: (fd.get("end_date") as string) || undefined,
         sequence_order: fd.get("sequence_order") ? Number(fd.get("sequence_order")) : undefined,
       });
-      await loadProduct(token, productId);
+      await loadProduct(productId);
       setShowAddStage(false);
       form.reset();
       flash("Stage added", "success");
@@ -153,7 +170,7 @@ export default function EditProductPage({ params }: PageProps) {
         end_date: (fd.get("end_date") as string) || undefined,
         sequence_order: fd.get("sequence_order") ? Number(fd.get("sequence_order")) : undefined,
       });
-      await loadProduct(token, productId);
+      await loadProduct(productId);
       setEditingStage(null);
       flash("Stage updated", "success");
     } catch (err) {
@@ -175,7 +192,7 @@ export default function EditProductPage({ params }: PageProps) {
         claim_text: fd.get("claim_text") as string,
         rationale: fd.get("rationale") as string,
       });
-      await loadProduct(token, productId);
+      await loadProduct(productId);
       setShowAddClaim(false);
       form.reset();
       flash("Claim added", "success");
@@ -185,7 +202,10 @@ export default function EditProductPage({ params }: PageProps) {
     setSaving(false);
   }
 
-  async function handleAddEvidence(e: React.FormEvent, claimId: string) {
+  async function handleUploadEvidence(
+    e: React.FormEvent,
+    target: { claim_id: string } | { stage_id: string },
+  ) {
     e.preventDefault();
     if (!token || !productId) return;
     const form = e.target as HTMLFormElement;
@@ -193,15 +213,21 @@ export default function EditProductPage({ params }: PageProps) {
 
     setSaving(true);
     try {
-      await createEvidence(token, productId, claimId, {
+      const file = fd.get("file");
+      if (!(file instanceof File) || file.size === 0) {
+        throw new Error("Please choose a file to upload");
+      }
+      await uploadEvidence(token, productId, {
+        file,
         type: fd.get("type") as string,
         issuer: fd.get("issuer") as string,
-        date: (fd.get("evidence_date") as string) || undefined,
+        date: (fd.get("date") as string) || undefined,
         summary: (fd.get("summary") as string) || undefined,
-        file_reference: (fd.get("file_reference") as string) || undefined,
+        ...target,
       });
-      await loadProduct(token, productId);
+      await loadProduct(productId);
       setAddEvidenceForClaim(null);
+      setAddEvidenceForStage(null);
       form.reset();
       flash("Evidence added", "success");
     } catch (err) {
@@ -316,7 +342,9 @@ export default function EditProductPage({ params }: PageProps) {
           <p className="text-gray-400 text-sm">No stages yet.</p>
         ) : (
           <div className="space-y-2">
-            {stages.map((s) => (
+            {stages.map((s) => {
+              const evidenceItems = stageEvidence[s.stage_id] ?? [];
+              return (
               <div key={s.stage_id} className="border border-gray-700 rounded p-3">
                 {editingStage === s.stage_id ? (
                   <form onSubmit={(e) => handleUpdateStage(e, s.stage_id)} className="space-y-3">
@@ -356,7 +384,7 @@ export default function EditProductPage({ params }: PageProps) {
                     </div>
                   </form>
                 ) : (
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-4">
                     <div>
                       <p className="font-medium">{s.stage_type}</p>
                       <p className="text-sm text-gray-400">
@@ -364,14 +392,83 @@ export default function EditProductPage({ params }: PageProps) {
                         {s.sequence_order != null && ` (order: ${s.sequence_order})`}
                       </p>
                       {s.description && <p className="text-sm text-gray-500 mt-1">{s.description}</p>}
+
+                      {evidenceItems.length > 0 && (
+                        <div className="mt-3 space-y-2 border-t border-gray-700 pt-3">
+                          <p className="text-xs text-gray-500">
+                            {evidenceItems.length} evidence item
+                            {evidenceItems.length !== 1 ? "s" : ""}
+                          </p>
+                          {evidenceItems.map((ev) => {
+                            const fileUrl = getEvidenceFileUrl(ev.file_reference);
+                            return (
+                              <div key={ev.evidence_id} className="border border-gray-700 rounded p-2 text-sm">
+                                <div className="flex justify-between gap-2">
+                                  <span className="font-medium">{ev.type}</span>
+                                  {ev.evidence_date && <span className="text-gray-500">{ev.evidence_date}</span>}
+                                </div>
+                                <p className="text-gray-400">Issuer: {ev.issuer}</p>
+                                {ev.summary && <p className="text-gray-500">{ev.summary}</p>}
+                                {fileUrl && (
+                                  <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline text-xs">
+                                    View document
+                                  </a>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                    <button onClick={() => setEditingStage(s.stage_id)} className="text-sm text-emerald-600 hover:underline">
-                      Edit
-                    </button>
+                    <div className="flex flex-col items-end gap-2">
+                      <button onClick={() => setEditingStage(s.stage_id)} className="text-sm text-emerald-600 hover:underline">
+                        Edit
+                      </button>
+                      <button onClick={() => setAddEvidenceForStage(addEvidenceForStage === s.stage_id ? null : s.stage_id)} className="text-sm text-emerald-600 hover:underline">
+                        {addEvidenceForStage === s.stage_id ? "Cancel upload" : "+ Add Evidence"}
+                      </button>
+                    </div>
                   </div>
                 )}
+
+                {editingStage !== s.stage_id && addEvidenceForStage === s.stage_id && (
+                  <form onSubmit={(e) => handleUploadEvidence(e, { stage_id: s.stage_id })} className="mt-3 border-t border-gray-700 pt-3 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs mb-1">Type *</label>
+                        <input name="type" required placeholder="e.g. audit_report" className={inputClass} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Issuer *</label>
+                        <input name="issuer" required placeholder="e.g. Supplier" className={inputClass} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Date</label>
+                        <input name="date" type="date" className={inputClass} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">File *</label>
+                        <input name="file" type="file" accept=".pdf,.txt,text/plain,application/pdf" required className={inputClass} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs mb-1">Summary</label>
+                      <textarea name="summary" rows={2} className={inputClass} />
+                    </div>
+                    <p className="text-xs text-gray-500">PDF or text file only, maximum size 1MB.</p>
+                    <div className="flex gap-2">
+                      <Button type="submit" disabled={saving} className="h-10 text-sm">
+                        Upload Evidence
+                      </Button>
+                      <button type="button" onClick={() => setAddEvidenceForStage(null)} className="text-sm text-gray-400 hover:text-white">
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
@@ -430,7 +527,9 @@ export default function EditProductPage({ params }: PageProps) {
                 {evidence.length > 0 && (
                   <div className="mt-3 border-t border-gray-700 pt-3 space-y-2">
                     <p className="text-xs text-gray-500">{evidence.length} evidence item{evidence.length !== 1 ? "s" : ""}</p>
-                    {evidence.map((ev) => (
+                    {evidence.map((ev) => {
+                      const fileUrl = getEvidenceFileUrl(ev.file_reference);
+                      return (
                       <div key={ev.evidence_id} className="border border-gray-700 rounded p-2 text-sm">
                         <div className="flex justify-between">
                           <span className="font-medium">{ev.type}</span>
@@ -438,19 +537,20 @@ export default function EditProductPage({ params }: PageProps) {
                         </div>
                         <p className="text-gray-400">Issuer: {ev.issuer}</p>
                         {ev.summary && <p className="text-gray-500">{ev.summary}</p>}
-                        {ev.file_reference && (
-                          <a href={ev.file_reference} target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline text-xs">
+                        {fileUrl && (
+                          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline text-xs">
                             View document
                           </a>
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 
                 {/* Add evidence form */}
                 {addEvidenceForClaim === claim.claim_id ? (
-                  <form onSubmit={(e) => handleAddEvidence(e, claim.claim_id)} className="mt-3 border-t border-gray-700 pt-3 space-y-3">
+                  <form onSubmit={(e) => handleUploadEvidence(e, { claim_id: claim.claim_id })} className="mt-3 border-t border-gray-700 pt-3 space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs mb-1">Type *</label>
@@ -462,17 +562,18 @@ export default function EditProductPage({ params }: PageProps) {
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Date</label>
-                        <input name="evidence_date" type="date" className={inputClass} />
+                        <input name="date" type="date" className={inputClass} />
                       </div>
                       <div>
-                        <label className="block text-xs mb-1">File/URL</label>
-                        <input name="file_reference" placeholder="Link to document" className={inputClass} />
+                        <label className="block text-xs mb-1">File *</label>
+                        <input name="file" type="file" accept=".pdf,.txt,text/plain,application/pdf" required className={inputClass} />
                       </div>
                     </div>
                     <div>
                       <label className="block text-xs mb-1">Summary</label>
                       <textarea name="summary" rows={2} className={inputClass} />
                     </div>
+                    <p className="text-xs text-gray-500">PDF or text file only, maximum size 1MB.</p>
                     <div className="flex gap-2">
                       <Button type="submit" disabled={saving} className="h-10 text-sm">
                         Add Evidence
