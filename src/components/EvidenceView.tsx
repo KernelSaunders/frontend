@@ -1,6 +1,6 @@
 "use client";
 
-import { ClaimEvidenceGroup } from "@/lib/api";
+import { ClaimEvidenceGroup, getEvidenceFileUrl } from "@/lib/api";
 
 interface EvidenceViewProps {
   groups: ClaimEvidenceGroup[];
@@ -26,7 +26,9 @@ export function EvidenceView({ groups }: EvidenceViewProps) {
           </div>
 
           <div className="space-y-3 border-t pt-3">
-            {group.evidence.map((ev) => (
+            {group.evidence.map((ev) => {
+              const fileUrl = getEvidenceFileUrl(ev.file_reference);
+              return (
               <div key={ev.evidence_id} className="border-l-2 pl-3">
                 <div className="flex justify-between items-start">
                   <span className="font-medium text-sm">{ev.issuer}</span>
@@ -34,12 +36,13 @@ export function EvidenceView({ groups }: EvidenceViewProps) {
                     <span className="text-xs text-gray-500">{ev.evidence_date}</span>
                   )}
                 </div>
+                <p className="text-xs text-gray-500 mt-1 uppercase">{ev.type}</p>
                 {ev.summary && (
                   <p className="text-sm text-gray-600 mt-1">{ev.summary}</p>
                 )}
-                {ev.file_reference && (
+                {fileUrl && (
                   <a
-                    href={ev.file_reference}
+                    href={fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm underline mt-1 inline-block"
@@ -48,7 +51,8 @@ export function EvidenceView({ groups }: EvidenceViewProps) {
                   </a>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}

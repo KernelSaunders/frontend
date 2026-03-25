@@ -56,15 +56,13 @@ export interface ChangeLogEntry {
   entity_id: string;
   changed_by?: string;
   timestamp: string;
-  change_summary?: {
-    action: string;
-    old_confidence?: string;
-    new_confidence?: string;
-    verification_notes?: string;
-    old_verified_status?: boolean;
-    new_verified_status?: boolean;
-  };
+  change_summary?: Record<string, unknown> | null;
   created_at: string;
+  product?: {
+    product_id: string;
+    product_name: string;
+    product_link: string;
+  } | null;
 }
 
 export interface Evidence {
@@ -77,6 +75,13 @@ export interface Evidence {
   summary: string | null;
   file_reference: string | null;
   created_at: string;
+}
+
+export interface StageEvidenceGroup {
+  stage_id: string;
+  stage_type: string;
+  description: string | null;
+  evidence: Evidence[];
 }
 
 export interface ClaimWithEvidence {
@@ -98,6 +103,11 @@ export interface ProductEvidenceView {
   groups: ClaimEvidenceGroup[];
 }
 
+export interface ProductStageEvidenceView {
+  product_id: string;
+  groups: StageEvidenceGroup[];
+}
+
 export interface ProductTraceability {
   product: Product;
   stages: Stage[];
@@ -107,7 +117,7 @@ export interface ProductTraceability {
 
 export interface UserRoleResponse {
   user_id: string;
-  role: "consumer" | "verifier" //Will add more later
+  role: "consumer" | "verifier" | "maintainer"
 }
 
 // Authenticate user sessions
@@ -281,6 +291,24 @@ export async function getProductEvidence(productId: string): Promise<ProductEvid
   return res.json();
 }
 
+export async function getProductStageEvidence(productId: string): Promise<ProductStageEvidenceView> {
+  const res = await fetch(`${API_BASE}/products/${productId}/stage-evidence`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch stage evidence");
+  return res.json();
+}
+
+// just getting evidence from public bucket
+// files are stored in db as ref not url,
+// so this herlper turns it into a full url
+export function getEvidenceFileUrl(fileReference: string | null): string | null {
+  if (!fileReference) return null;
+  if (fileReference.startsWith("http://") || fileReference.startsWith("https://")) {
+    return fileReference;
+  }
+  const { data } = supabase.storage.from("documents").getPublicUrl(fileReference);
+  return data.publicUrl;
+}
+
 export async function getMissionsForProduct(productId: string): Promise<QuestMission[]> {
   const res = await fetch(`${API_BASE}/products/${productId}/missions`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch missions");
@@ -311,6 +339,16 @@ export interface RecentMissionCompletion {
   completed_at: string;
 }
 
+export interface MissionBadge {
+  id: string;
+  name: string;
+  description: string;
+  earned: boolean;
+  progress_current: number;
+  progress_target: number;
+  icon: string;
+}
+
 export interface UserProgressSummary {
   user_id: string;
   total_completed: number;
@@ -322,6 +360,7 @@ export interface UserProgressSummary {
   };
   missions: UserMissionProgress[];
   recent_completions: RecentMissionCompletion[];
+  badges: MissionBadge[];
 }
 
 export async function attemptMission(
@@ -363,6 +402,15 @@ export async function getUserRole(token: string): Promise<{ user_id: string; rol
     cache: "no-store",
   });
   if (!res.ok) throw new Error("Failed to fetch role");
+  return res.json();
+}
+
+export async function getAuditLogs(token: string, limit = 50): Promise<ChangeLogEntry[]> {
+  const res = await fetch(`${API_BASE}/maintainers/audit-logs?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch audit logs");
   return res.json();
 }
 
@@ -471,6 +519,46 @@ export async function createEvidence(
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to create evidence");
+  return res.json();
+}
+
+export async function uploadEvidence(
+  token: string,
+  productId: string,
+  data: {
+    file: File;
+    type: string;
+    issuer: string;
+    date?: string;
+    summary?: string;
+    claim_id?: string;
+    stage_id?: string;
+  }
+): Promise<Evidence> {
+  const formData = new FormData();
+  formData.append("file", data.file);
+  formData.append("type", data.type);
+  formData.append("issuer", data.issuer);
+  if (data.date) formData.append("date", data.date);
+  if (data.summary) formData.append("summary", data.summary);
+  if (data.claim_id) formData.append("claim_id", data.claim_id);
+  if (data.stage_id) formData.append("stage_id", data.stage_id);
+
+  const res = await fetch(`${API_BASE}/products/${productId}/evidence/upload`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  if (!res.ok) {
+    let message = "Failed to upload evidence";
+    try {
+      const body = await res.json();
+      message = body.detail || message;
+    } catch {
+      message = "Failed to upload evidence";
+    }
+    throw new Error(message);
+  }
   return res.json();
 }
 

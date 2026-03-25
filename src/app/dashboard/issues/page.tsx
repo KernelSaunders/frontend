@@ -10,7 +10,7 @@ import {
   updateIssue,
   type IssueReport,
 } from "@/lib/api";
-import { Button } from "@/components/Button";
+import { hasVerifierAccess } from "@/lib/roles";
 
 const STATUS_OPTIONS = [
   "open",
@@ -56,7 +56,7 @@ export default function IssuesPage() {
       }
       try {
         const { role } = await getUserRole(t);
-        if (role !== "verifier") {
+        if (!hasVerifierAccess(role)) {
           router.replace("/");
           return;
         }

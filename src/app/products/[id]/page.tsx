@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { getMissionsForProduct, getProductTraceability, type QuestMission } from "@/lib/api";
+import {
+  getMissionsForProduct,
+  getProductStageEvidence,
+  getProductTraceability,
+  type QuestMission,
+  type StageEvidenceGroup,
+} from "@/lib/api";
 import { Timeline } from "@/components/Timeline";
 import { OriginBreakdown } from "@/components/OriginBreakdown";
 import { ClaimsSection } from "@/components/ClaimsSection";
@@ -19,11 +25,20 @@ export default async function ProductPage({ params }: PageProps) {
   let error = null;
   let missions: QuestMission[] = [];
   let missionsError: string | null = null;
+  let stageEvidenceGroups: StageEvidenceGroup[] = [];
+  let stageEvidenceError: string | null = null;
 
   try {
     productData = await getProductTraceability(id);
-  } catch (e) {
+  } catch {
     error = "Product not found or failed to load.";
+  }
+
+  try {
+    const stageEvidence = await getProductStageEvidence(id);
+    stageEvidenceGroups = stageEvidence.groups;
+  } catch {
+    stageEvidenceError = "Failed to load stage evidence.";
   }
 
   if (error || !productData) {
@@ -62,7 +77,10 @@ export default async function ProductPage({ params }: PageProps) {
       <section className="mt-8">
         <div className="rounded-lg border border-[#E3E8E5] bg-white p-7 shadow-[0_8px_24px_rgba(20,30,24,0.08)]">
           <h2 className="text-xl font-semibold mb-4">Traceability Timeline</h2>
-        <Timeline stages={stages} />
+          {stageEvidenceError && (
+            <p className="mb-4 text-sm text-amber-700">{stageEvidenceError}</p>
+          )}
+        <Timeline stages={stages} stageEvidenceGroups={stageEvidenceGroups} />
         </div>
         
       </section>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Claim, ClaimEvidenceGroup, getClaimEvidence } from "@/lib/api";
+import { Claim, ClaimEvidenceGroup, getClaimEvidence, getEvidenceFileUrl } from "@/lib/api";
 import { useUserRole } from "@/hooks/useUserRole";
 import { VerifierControls } from "@/components/VerifierControls";
+import { hasVerifierAccess } from "@/lib/roles";
 
 interface ClaimCardProps {
   claim: Claim;
@@ -22,7 +23,7 @@ export function ClaimCard({ claim, productId }: ClaimCardProps) {
   const [loading, setLoading] = useState(false);
   const [confidenceLabel, setConfidenceLabel] = useState(claim.confidence_label ?? "unknown");
   const role = useUserRole();
-  const isVerifier = role === "verifier";
+  const canVerifyClaims = hasVerifierAccess(role);
 
   async function handleViewEvidence() {
     if (expanded) {
@@ -77,35 +78,39 @@ export function ClaimCard({ claim, productId }: ClaimCardProps) {
             ) : !evidenceGroup || evidenceGroup.evidence.length === 0 ? (
               <p className="text-sm text-gray-500">No evidence available.</p>
             ) : (
-              evidenceGroup.evidence.map((ev) => (
-                <div key={ev.evidence_id} className="border-l-2 pl-3">
-                  <div className="flex justify-between items-start">
-                    <span className="font-medium text-sm">{ev.issuer}</span>
-                    {ev.evidence_date && (
-                      <span className="text-xs text-gray-500">{ev.evidence_date}</span>
+              evidenceGroup.evidence.map((ev) => {
+                const fileUrl = getEvidenceFileUrl(ev.file_reference);
+                return (
+                  <div key={ev.evidence_id} className="border-l-2 pl-3">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-sm">{ev.issuer}</span>
+                      {ev.evidence_date && (
+                        <span className="text-xs text-gray-500">{ev.evidence_date}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 uppercase">{ev.type}</p>
+                    {ev.summary && (
+                      <p className="text-sm text-gray-600 mt-1">{ev.summary}</p>
+                    )}
+                    {fileUrl && (
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm underline mt-1 inline-block"
+                      >
+                        View document
+                      </a>
                     )}
                   </div>
-                  {ev.summary && (
-                    <p className="text-sm text-gray-600 mt-1">{ev.summary}</p>
-                  )}
-                  {ev.file_reference && (
-                    <a
-                      href={ev.file_reference}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm underline mt-1 inline-block"
-                    >
-                      View document
-                    </a>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         )}
       </div>
 
-      {isVerifier && (
+      {canVerifyClaims && (
         <VerifierControls
           productId={productId}
           claim={claim}
