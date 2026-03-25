@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Titillium_Web, Martel_Sans, Overpass } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
@@ -33,9 +34,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${titillium.variable} ${martel.variable} ${overpass.variable}`}>
+      <body className={`${titillium.variable} ${martel.variable} ${overpass.variable} min-h-screen`}>
+        <div className="flex min-h-screen flex-col">
         <NavBar />
-        {children}
+          <main className="flex-1">{children}</main>
+          <footer className="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
+            <div className="mx-auto flex max-w-6xl items-center justify-center">
+              <Link
+                href="/terms"
+                className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
+              >
+                Terms and Conditions
+              </Link>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );
